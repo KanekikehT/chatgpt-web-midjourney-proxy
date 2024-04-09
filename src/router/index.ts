@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import { setupPageGuard } from './permission'
 import { ChatLayout } from '@/views/chat/layout'
 import mjlayout from '@/views/mj/layout.vue'
+import loginlayout from '@/views/login/layout/Layout.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -19,7 +20,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-   {
+  {
     path: '/g',
     name: 'g',
     component: ChatLayout,
@@ -32,7 +33,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-   {
+  {
     path: '/m',
     name: 'm',
     component: ChatLayout,
@@ -59,7 +60,6 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-
   {
     path: '/draw',
     name: 'Rootdraw',
@@ -74,21 +74,35 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-    {
-    path: '/music',
-    name: 'music',
-    component: mjlayout,
-    redirect: '/music/index',
+  // 登录
+  {
+    path: '/u',
+    name: 'u',
+    component: loginlayout,
+    redirect: '/u/login',
     children: [
       {
-        path: '/music/:uuid?',
-        name: 'music',
-        component: () => import('@/views/suno/music.vue'),
+        path: 'login',
+        name: 'login',
+        component: () => import('@/views/login/components/LoginForm.vue'),
+      },
+      {
+        path: 'register',
+        name: 'register',
+        // 假设您有一个专门的组件来处理注册
+        component: () => import('@/views/login/components/RegisterForm.vue'),
+      },
+      {
+        path: 'reset',
+        name: 'reset',
+        // 假设您有一个专门的组件来处理注册
+        component: () => import('@/views/login/components/ResetForm.vue'),
       },
     ],
+
   },
 
-  //调试
+  // 调试
   // {
   //   path: '/mytest',
   //   name: 'mytest',

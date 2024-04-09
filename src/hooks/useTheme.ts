@@ -20,12 +20,23 @@ export function useTheme() {
   })
 
   const themeOverrides = computed<GlobalThemeOverrides>(() => {
-    if (isDark.value) {
+    if (!isDark.value) { // 当主题为明亮模式时
+      return {
+        common: {
+          primaryColor: '#000000', // 主题色为黑色
+          primaryColorHover: '#000000', // 鼠标悬浮时为黑色
+          primaryColorPressed: '#000000', // 鼠标按下时为黑色
+          textColor: '#000000', // 文字颜色也设置为黑色，确保一致性
+
+        },
+        // 根据需要，可以继续覆盖其他组件的主题变量
+      }
+    }
+    else { // 暗色主题时使用默认或自定义的暗色主题配置
       return {
         common: {},
       }
     }
-    return {}
   })
 
   watch(

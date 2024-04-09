@@ -6,19 +6,23 @@ export interface UserInfo {
   avatar: string
   name: string
   description: string
+  points: number
 }
 
 export interface UserState {
   userInfo: UserInfo
+  isLoggedIn: boolean // 新增登录状态字段
 }
 
 export function defaultSetting(): UserState {
   return {
     userInfo: {
       avatar: 'https://raw.githubusercontent.com/Dooy/chatgpt-web-midjourney-proxy/main/src/assets/avatar.jpg',
-      name:  t('mjset.sysname'),//'AI绘图',
-      description: 'Star on <a href="https://github.com/Dooy/chatgpt-web-midjourney-proxy" class="text-blue-500" target="_blank" >GitHub</a>',
+      name: t('mjset.sysname'), // 'AI绘图',
+      description: '文无AI©2024.',
+      points: 0,
     },
+    isLoggedIn: false, // 默认未登录状态
   }
 }
 
