@@ -22,7 +22,7 @@ export function defaultSetting(): UserState {
       description: '文无AI©2024.',
       points: 0,
     },
-    isLoggedIn: false, // 默认未登录状态
+    isLoggedIn: true, // 默认未登录状态
   }
 }
 

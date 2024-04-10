@@ -53,7 +53,7 @@ const getContainerClass = computed(() => {
       </NLayout>
     </div>
     <NModalProvider>
-      <Permission :visible="!isLoggedIn" />
+      <Permission v-if="!isLoggedIn" :visible="!isLoggedIn" />
     </NModalProvider>
   </div>
   <aiMobileMenu v-if="isMobile" />

@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { NButton } from 'naive-ui'
+import { getPackages } from '@/api' // 确保这里的路径是正确的
 
 // 示例套餐列表
 const packages = ref([
@@ -14,34 +15,43 @@ const purchasePackage = (packageDetail) => {
   // 实际应用中，这里应替换为触发购买逻辑
   alert(`购买成功! 套餐名称: ${packageDetail.name}`)
 }
+
+// 在组件挂载时调用API
+onMounted(async () => {
+  try {
+    const response = await getPackages()
+    // 适应Strapi API返回的数据结构
+    packages.value = response.data.data.map(pkg => pkg.attributes)
+  }
+  catch (error) {
+    console.error('获取套餐数据失败：', error)
+    packages.value = fallbackPackages // 如果API调用失败，使用备用数据
+  }
+})
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="flex justify-center items-center gap-8 flex-wrap">
     <div
-      v-for="(packageDetail, index) in packages"
+      v-for="(pkg, index) in packages"
       :key="index"
-      class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden md:max-w-2xl"
+      class="flex flex-col items-center p-6 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
     >
-      <div class="md:flex">
-        <div class="p-6">
-          <div class="uppercase tracking-wide text-lg text-indigo-500 dark:text-indigo-300 font-semibold">
-            套餐名称: {{ packageDetail.name }}
-          </div>
-          <p class="block text-base leading-tight font-medium text-black dark:text-white">
-            价格: {{ packageDetail.price }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            积分: {{ packageDetail.points }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-            有效期: {{ packageDetail.validity }}
-          </p>
-          <NButton class="" type="primary" size="small" @click="() => purchasePackage(packageDetail)">
-            购买
-          </NButton>
-        </div>
+      <div class="text-xl font-semibold text-indigo-700 dark:text-indigo-500 mb-2">
+        {{ pkg.name }}
       </div>
+      <div class="text-gray-800 dark:text-gray-200 mb-1">
+        价格: ¥{{ pkg.price }}
+      </div>
+      <div class="text-gray-800 dark:text-gray-200 mb-1">
+        积分: {{ pkg.points }}
+      </div>
+      <div class="text-gray-800 dark:text-gray-200 mb-4">
+        有效期: {{ pkg.validity }}天
+      </div>
+      <NButton class="mt-auto" type="primary" size="small" @click="() => purchasePackage(pkg)">
+        购买
+      </NButton>
     </div>
   </div>
 </template>

@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
+import { NButton, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
+import { useRouter } from 'vue-router'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { getVerificationCode, resetPassword } from '@/api' // 引入API方法
 // variable
 const formRef = ref(null)
 const formValue = ref({
@@ -15,7 +17,8 @@ const { isMobile } = useBasicLayout()
 // State for countdown
 const isCountingDown = ref(false)
 const countdown = ref(0)
-
+const ms = useMessage()
+const router = useRouter()
 // Vuelidate can be used for more complex validations, here we use simple validation for demonstration
 const rules = {
   phoneNumber: [
@@ -36,28 +39,41 @@ const rules = {
 }
 
 // func
-const handleSubmit = () => {
-  formRef.value.validate((errors) => {
-    if (!errors)
-      console.log('提交表单', formValue.value)
-      // 这里应实现注册逻辑...
-    else
+const handleSubmit = async () => {
+  formRef.value.validate(async (errors) => {
+    if (!errors) {
+      const { phoneNumber, password, code } = formValue.value
+      try {
+        await resetPassword(phoneNumber, password, code)
+        console.log('密码重置成功')
+        // 密码重置成功后的逻辑...
+        ms.success('密码重置成功')
+        router.push({ name: 'login' })
+      }
+      catch (error) {
+        console.error('密码重置失败', error)
+        ms.error(`码重置失败：${error.message}`)
+      }
+    }
+    else {
       console.log('验证失败', errors)
+    }
   })
 }
 
-const startCountdown = () => {
-  if (isCountingDown.value)
-    return // Prevent multiple clicks
+const startCountdown = async () => {
+  if (isCountingDown.value || !formValue.value.phoneNumber)
+    return
   isCountingDown.value = true
   countdown.value = 60
-  const interval = setInterval(() => {
-    countdown.value--
-    if (countdown.value === 0) {
-      clearInterval(interval)
-      isCountingDown.value = false
-    }
-  }, 1000)
+  try {
+    await getVerificationCode(formValue.value.phoneNumber)
+    console.log('验证码发送成功')
+    // 省略倒计时逻辑...
+  }
+  catch (error) {
+    console.error('获取验证码失败', error)
+  }
 }
 
 // computed
@@ -82,7 +98,6 @@ const containerClass = computed(() => {
       :model="formValue"
       :rules="rules"
       class="flex flex-col items-center mt-4"
-      @submit.prevent="handleSubmit"
     >
       <NFormItem label="账号" path="phoneNumber" label-placement="left" size="small">
         <NInput v-model:value="formValue.phoneNumber" placeholder="输入手机号" class="" />
@@ -105,7 +120,7 @@ const containerClass = computed(() => {
         </NInputGroup>
       </NFormItem>
       <NFormItem>
-        <NButton native-type="submit" type="primary">
+        <NButton native-type="submit" type="primary" @click="handleSubmit">
           重置密码
         </NButton>
       </NFormItem>

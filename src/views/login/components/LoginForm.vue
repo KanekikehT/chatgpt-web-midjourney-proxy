@@ -1,8 +1,10 @@
 <script setup>
 // pacakge
 import { computed, ref } from 'vue'
-import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
+import { useRouter } from 'vue-router'
+import { NButton, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { login } from '@/api'
 
 // variable
 const formRef = ref(null)
@@ -12,6 +14,8 @@ const formValue = ref({
 })
 // 获取是否为移动设备的状态
 const { isMobile } = useBasicLayout()
+const router = useRouter()
+const ms = useMessage()
 
 const rules = {
   phoneNumber: [
@@ -26,12 +30,28 @@ const rules = {
 
 // func
 const handleSubmit = () => {
-  formRef.value.validate((errors) => {
-    if (!errors)
-      console.log('提交表单', formValue.value)
-      // 实现登录逻辑...
-    else
+  formRef.value.validate(async (errors) => {
+    if (!errors) {
+      try {
+        // 调用API并等待结果
+        const response = await login(formValue.value.phoneNumber, formValue.value.password)
+        console.log('登录成功', response)
+        ms.success('登录成功')
+        router.push({ name: 'Chat' })
+        // 根据业务需求处理响应，例如保存jwt或跳转到首页
+        // 示例：假设jwt保存在localStorage，跳转到首页
+      }
+      catch (error) {
+        console.error('登录失败', error)
+        ms.error(`登录失败：${error.message}`)
+        // 这里可以处理错误，例如显示一个错误消息
+        // 例如：this.$message.error('登录失败');
+      }
+    }
+    else {
       console.log('验证失败', errors)
+      // 处理表单验证失败的情况
+    }
   })
 }
 
@@ -61,11 +81,10 @@ const containerStyle = computed(() => {
         :model="formValue"
         :rules="rules"
         class="flex flex-col items-center mt-4"
-        @submit="handleSubmit"
       >
         <!-- 邮箱 -->
         <NFormItem label="账号" path="phoneNumber" label-placement="left">
-          <NInput v-model:value="formValue.email" class=" " placeholder="输入手机号" />
+          <NInput v-model:value="formValue.phoneNumber" class=" " placeholder="输入手机号" />
         </NFormItem>
         <!-- 密码 -->
         <NFormItem label="密码" path="password" label-placement="left">
@@ -78,7 +97,7 @@ const containerStyle = computed(() => {
         </NFormItem>
         <!-- 登录按钮  -->
         <NFormItem class="">
-          <NButton native-type="submit" type="primary">
+          <NButton type="primary" @click="handleSubmit">
             登录
           </NButton>
         </NFormItem>
@@ -97,7 +116,7 @@ const containerStyle = computed(() => {
     <div class="bg-zinc-100 w-full h-52 border ">
       <div class="flex flex-col">
         <div class="text-xl font-bold mt-6 ml-6" style="font-family: 'Microsoft YaHei';">
-          100万人使用的ChatGpt工作站
+          100万人使用的ChatGPT工作站
         </div>
         <div class="text-xs text-gray-500 mt-4 ml-10">
           <p class="mt-2">

@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { NButton, NForm, NFormItem, NInput } from 'naive-ui'
+import { useRouter } from 'vue-router'
+import { NButton, NForm, NFormItem, NInput, NInputGroup, useMessage } from 'naive-ui'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { getVerificationCode, register } from '@/api' // 引入获取验证码的API函数
 // variable
 const formRef = ref(null)
 const formValue = ref({
@@ -15,6 +17,8 @@ const { isMobile } = useBasicLayout()
 // State for countdown
 const isCountingDown = ref(false)
 const countdown = ref(0)
+const ms = useMessage()
+const router = useRouter()
 
 // Vuelidate can be used for more complex validations, here we use simple validation for demonstration
 const rules = {
@@ -36,28 +40,54 @@ const rules = {
 }
 
 // func
-const handleSubmit = () => {
-  formRef.value.validate((errors) => {
-    if (!errors)
-      console.log('提交表单', formValue.value)
-      // 这里应实现注册逻辑...
-    else
+const handleSubmit = async () => {
+  formRef.value.validate(async (errors) => {
+    if (!errors) {
+      try {
+        const { phoneNumber, password, code } = formValue.value
+        // 调用注册API
+        const response = await register(phoneNumber, password, code)
+        ms.success('注册成功')
+        console.log('注册成功', response)
+        router.push({ name: 'login' })
+        // 根据业务需求处理注册成功后的逻辑，例如跳转到登录页面或首页
+      }
+      catch (error) {
+        console.error('注册失败', error)
+        ms.error(`注册失败：${error.message}`)
+        // 处理注册失败的逻辑，例如显示错误消息
+      }
+    }
+    else {
       console.log('验证失败', errors)
+      // 处理表单验证失败的情况
+    }
   })
 }
 
-const startCountdown = () => {
-  if (isCountingDown.value)
-    return // Prevent multiple clicks
-  isCountingDown.value = true
-  countdown.value = 60
-  const interval = setInterval(() => {
-    countdown.value--
-    if (countdown.value === 0) {
-      clearInterval(interval)
-      isCountingDown.value = false
-    }
-  }, 1000)
+const startCountdown = async () => {
+  if (isCountingDown.value || !formValue.value.phoneNumber)
+    return // Prevent multiple clicks or trigger without phoneNumber
+
+  try {
+    await getVerificationCode(formValue.value.phoneNumber) // 调用获取验证码的API
+    console.log('验证码发送成功') // 可以在这里添加成功提示
+    ms.success('验证码发送成功')
+    // 开始倒计时
+    isCountingDown.value = true
+    countdown.value = 120
+    const interval = setInterval(() => {
+      countdown.value--
+      if (countdown.value === 0) {
+        clearInterval(interval)
+        isCountingDown.value = false
+      }
+    }, 1000)
+  }
+  catch (error) {
+    console.error('获取验证码失败', error)
+    // 这里可以处理获取验证码失败的情况，例如显示错误消息
+  }
 }
 
 // computed
@@ -82,7 +112,6 @@ const containerClass = computed(() => {
       :model="formValue"
       :rules="rules"
       class="flex flex-col items-center mt-4"
-      @submit.prevent="handleSubmit"
     >
       <NFormItem label="账号" path="phoneNumber" label-placement="left" size="small">
         <NInput v-model:value="formValue.phoneNumber" placeholder="输入手机号" class="" />
@@ -105,7 +134,7 @@ const containerClass = computed(() => {
         </NInputGroup>
       </NFormItem>
       <NFormItem>
-        <NButton native-type="submit" type="primary">
+        <NButton native-type="submit" type="primary" @click="handleSubmit">
           注册
         </NButton>
       </NFormItem>
