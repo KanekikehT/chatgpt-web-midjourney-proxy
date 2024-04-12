@@ -1,17 +1,21 @@
 <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { NModal } from 'naive-ui'
+import { NModal, useMessage } from 'naive-ui'
 import { HoverButton, SvgIcon } from '@/components/common'
-import { gptConfigStore, homeStore, useAppStore, useChatStore } from '@/store'
+import { gptConfigStore, homeStore, useAppStore, useChatStore, useUserStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import aiModel from '@/views/mj/aiModel.vue'
 import { chatSetting } from '@/api'
-
+import { t } from '@/locales'
 defineProps<Props>()
 
 const emit = defineEmits<Emit>()
 
 const { isMobile } = useBasicLayout()
+
+const userStore = useUserStore()
+
+const ms = useMessage()
 
 interface Props {
   usingContext: boolean
@@ -36,6 +40,12 @@ function onScrollToTop() {
   const scrollRef = document.querySelector('#scrollRef')
   if (scrollRef)
     nextTick(() => scrollRef.scrollTop = 0)
+}
+
+function handleReset() {
+  userStore.resetUserInfo()
+  ms.success(t('common.success'))
+  window.location.reload()
 }
 
 function handleExport() {
@@ -84,7 +94,7 @@ watch(() => homeStore.myData.act, n => n == 'saveChat' && (nGptStore.value = cha
             <SvgIcon icon="ri:delete-bin-line" />
           </span>
         </HoverButton>
-        <HoverButton @click="handleExport">
+        <HoverButton @click="handleReset">
           <span class="text-xl text-[#4f555e] dark:text-white">
             <SvgIcon icon="material-symbols:logout" />
           </span>

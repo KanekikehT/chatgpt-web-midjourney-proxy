@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NForm, NFormItem, NInput, NInputGroup, useMessage } from 'naive-ui'
-import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { useBasicLayout, useLargeLayout, useMediumLayout, useTVLayout, useXLScreenLayout } from '@/hooks/useBasicLayout'
+
 import { getVerificationCode, register } from '@/api' // 引入获取验证码的API函数
 // variable
 const formRef = ref(null)
@@ -14,6 +15,10 @@ const formValue = ref({
 })
 // 获取是否为移动设备的状态
 const { isMobile } = useBasicLayout()
+const { isMedium } = useMediumLayout()
+const { isLarge } = useLargeLayout()
+const { isXL } = useXLScreenLayout()
+const { isTV } = useTVLayout()
 // State for countdown
 const isCountingDown = ref(false)
 const countdown = ref(0)
@@ -48,7 +53,7 @@ const handleSubmit = async () => {
         // 调用注册API
         const response = await register(phoneNumber, password, code)
         ms.success('注册成功')
-        console.log('注册成功', response)
+        // console.log('注册成功', response)
         router.push({ name: 'login' })
         // 根据业务需求处理注册成功后的逻辑，例如跳转到登录页面或首页
       }
@@ -59,7 +64,7 @@ const handleSubmit = async () => {
       }
     }
     else {
-      console.log('验证失败', errors)
+      // console.log('验证失败', errors)
       // 处理表单验证失败的情况
     }
   })
@@ -71,7 +76,7 @@ const startCountdown = async () => {
 
   try {
     await getVerificationCode(formValue.value.phoneNumber) // 调用获取验证码的API
-    console.log('验证码发送成功') // 可以在这里添加成功提示
+    // console.log('验证码发送成功') // 可以在这里添加成功提示
     ms.success('验证码发送成功')
     // 开始倒计时
     isCountingDown.value = true
@@ -91,20 +96,34 @@ const startCountdown = async () => {
 }
 
 // computed
-const containerStyle = computed(() => {
-  return isMobile.value ? ' position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%); width: 340px;' : 'width: 340px;'
-})
 const containerClass = computed(() => {
-  return isMobile.value ? 'border shadow rounded  flex flex-col items-center p-4 bg-white' : 'border shadow rounded relative top-32 left-28  flex flex-col items-center p-4 bg-white'
+  return isMobile.value
+    ? 'border shadow rounded flex flex-col absolute'
+    : 'border shadow rounded flex flex-col items-center absolute left-24 top-14'
+})
+const containerStyle = computed(() => {
+  if (isMobile.value)
+    return 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px;'
+  else if (isMedium.value)
+    return 'position: absolute; left: 8vw; width: 340px; top: 15vh;'
+
+  else if (isLarge.value)
+    return 'position: absolute; width: 25vw; left: 6vw;'
+  else if (isXL.value)
+    return 'position: absolute; left: 10vw; width: 35vw; top: 10vh;'
+  else if (isTV.value)
+    return 'position: absolute; left: 15vw; width: 45vw; top: 5vh;'
+
+  return 'position: absolute; width: 340px; left: 24vw; top: 14vh;' // 默认样式
 })
 </script>
 
 <template>
   <div :class="containerClass" :style="containerStyle">
-    <div class="text-2xl font-bold mt-6" style="font-family: 'Microsoft YaHei';">
+    <div class="text-2xl font-bold mt-6" style="font-family: 'Microsoft YaHei'; text-align: center;">
       注册账号
     </div>
-    <div class="text-gray-500 text-xs mt-1">
+    <div class="text-gray-500 text-xs mt-1" style=" text-align: center;">
       创建新账户
     </div>
     <NForm
@@ -139,7 +158,7 @@ const containerClass = computed(() => {
         </NButton>
       </NFormItem>
     </NForm>
-    <div class="text-xs text-gray-500">
+    <div class="text-xs text-gray-500" style=" text-align: center;">
       注册即表示您同意<span class="text-sky-500">用户协议</span>和<span class="text-sky-500">隐私政策</span>
     </div>
   </div>

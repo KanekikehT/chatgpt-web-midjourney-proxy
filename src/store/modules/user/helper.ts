@@ -7,6 +7,7 @@ export interface UserInfo {
   name: string
   description: string
   points: number
+  token: string
 }
 
 export interface UserState {
@@ -21,6 +22,7 @@ export function defaultSetting(): UserState {
       name: t('mjset.sysname'), // 'AI绘图',
       description: '文无AI©2024.',
       points: 0,
+      token: '',
     },
     isLoggedIn: true, // 默认未登录状态
   }

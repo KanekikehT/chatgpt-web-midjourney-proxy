@@ -1,36 +1,139 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { NButton } from 'naive-ui'
-import { getPackages } from '@/api' // 确保这里的路径是正确的
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { NButton, NModal, NQrCode } from 'naive-ui'
+import { convertPrice, generateOut_trade_no, queryOrderStatus, startCountdown } from '../utils/packageService'
+import { closeOrder, createPaymentOrder, getPackages } from '@/api'
+import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { useUserStore } from '@/store'
 
-// 示例套餐列表
-const packages = ref([
-  { name: '套餐 A', points: 100, price: '¥99.00', validity: '30 天' },
-  { name: '套餐 B', points: 200, price: '¥199.00', validity: '60 天' },
-  { name: '套餐 C', points: 300, price: '¥299.00', validity: '90 天' },
-  // 添加更多套餐详情
-])
+const { isMobile } = useBasicLayout()
+const packages = ref([])
+const showModal = ref(false)
+const qrCodeUrl = ref('')
+const orderPaid = ref(false)
+const orderNumber = ref('')
+const countdown = ref(120)
+const countdownInterval = ref(null)
+const queryInterval = ref(null)
+const pollingActive = ref(false)
+const userStore = useUserStore()
+const { token } = userStore.userInfo
+// console.log('---', token)
 
-const purchasePackage = (packageDetail) => {
-  // 实际应用中，这里应替换为触发购买逻辑
-  alert(`购买成功! 套餐名称: ${packageDetail.name}`)
-}
-
-// 在组件挂载时调用API
+// 在组件挂载时调用API获取套餐列表
 onMounted(async () => {
   try {
     const response = await getPackages()
-    // 适应Strapi API返回的数据结构
     packages.value = response.data.data.map(pkg => pkg.attributes)
   }
   catch (error) {
     console.error('获取套餐数据失败：', error)
-    packages.value = fallbackPackages // 如果API调用失败，使用备用数据
   }
 })
+
+onUnmounted(() => {
+  clearInterval(countdownInterval.value)
+  pollingActive.value = false
+})
+
+const closeModalAndOrder = async () => {
+  showModal.value = false
+  clearInterval(countdownInterval.value)
+  pollingActive.value = false
+  // 停止轮询查询订单状态
+  if (queryInterval.value)
+    clearInterval(queryInterval.value)
+
+  // 调用API尝试关闭订单，仅当订单号存在且订单未支付时执行
+  if (orderNumber.value && !orderPaid.value) {
+    try {
+      const response = await closeOrder(orderNumber.value, token)
+      // console.log('关闭订单的响应:', response.data)
+      // 这里可以根据响应进一步处理，比如通知用户订单已关闭
+    }
+    catch (error) {
+      console.error('关闭订单失败:', error.response ? error.response.data : error)
+      // 这里可以处理错误，比如通知用户订单关闭失败
+    }
+  }
+}
+
+watch(showModal, (newVal) => {
+  if (newVal) {
+    countdown.value = 120
+    countdownInterval.value = startCountdown(countdown.value, (currentCountdown) => {
+      countdown.value = currentCountdown
+    }, () => {
+      closeModalAndOrder()
+    })
+  }
+})
+
+const purchasePackage = async (packageDetail) => {
+  if (!isMobile.value) {
+    try {
+      orderNumber.value = generateOut_trade_no() // 生成唯一订单号
+      // console.log('---', orderNumber.value)
+      // 设置调用API的参数
+      const orderInfo = {
+        description: packageDetail.name, // 使用套餐名称作为商品描述
+        out_trade_no: orderNumber.value, // 使用生成的唯一订单号
+        notify_url: 'https://localhost:1337/api/payments/callback', // 回调地址
+        amount: {
+          total: convertPrice(packageDetail.price), // 设置价格，注意单位是分
+          currency: 'CNY', // 设置货币类型
+        },
+      }
+
+      // 调用创建支付订单的API...
+      const response = await createPaymentOrder(orderInfo, token)
+      // console.log('---', response)
+      // 检查API调用结果
+      if (response.data && response.data.data.code_url) {
+        qrCodeUrl.value = response.data.data.code_url // 获取支付二维码URL
+        showModal.value = true // 显示二维码模态框
+        // 付款后开始轮询查询订单状态
+        pollingActive.value = true
+        queryInterval.value = setInterval(async () => {
+          if (!pollingActive.value) {
+            // 如果轮询不再激活，立即清除定时器并退出
+            clearInterval(queryInterval.value)
+            return
+          }
+          const { data } = await queryOrderStatus(orderNumber.value, token)
+          if (data.data.trade_state === 'SUCCESS')
+            orderPaid.value = true
+          if (orderPaid.value || countdown.value <= 0)
+            closeModalAndOrder()
+        }, 5000) // 每5秒查询一次订单状态
+      }
+      else {
+        // 处理错误或无法获取支付信息的情况
+        console.error('无法获取支付信息')
+      }
+    }
+    catch (error) {
+      console.error('购买套餐过程中发生错误：', error)
+    }
+  }
+  else {
+    // console.log('此功能在移动设备上不可用')
+  }
+}
 </script>
 
 <template>
+  <NModal
+    v-model:show="showModal" :mask-closable="false" class="custom-card" preset="card" style="width: 300px" title="扫码支付" size="huge"
+    @update:show="closeModalAndOrder"
+  >
+    <NQrCode :value="qrCodeUrl" size="200" />
+    <template #footer>
+      <div style="display: flex; justify-content: center; width: 100%;">
+        请在{{ countdown }}秒内完成支付
+      </div>
+    </template>
+  </NModal>
   <div class="flex justify-center items-center gap-8 flex-wrap">
     <div
       v-for="(pkg, index) in packages"

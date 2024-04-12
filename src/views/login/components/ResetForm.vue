@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import { NButton, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { useBasicLayout, useLargeLayout, useMediumLayout, useTVLayout, useXLScreenLayout } from '@/hooks/useBasicLayout'
+
 import { getVerificationCode, resetPassword } from '@/api' // 引入API方法
 // variable
 const formRef = ref(null)
@@ -14,6 +15,10 @@ const formValue = ref({
 })
 // 获取是否为移动设备的状态
 const { isMobile } = useBasicLayout()
+const { isMedium } = useMediumLayout()
+const { isLarge } = useLargeLayout()
+const { isXL } = useXLScreenLayout()
+const { isTV } = useTVLayout()
 // State for countdown
 const isCountingDown = ref(false)
 const countdown = ref(0)
@@ -45,7 +50,7 @@ const handleSubmit = async () => {
       const { phoneNumber, password, code } = formValue.value
       try {
         await resetPassword(phoneNumber, password, code)
-        console.log('密码重置成功')
+        // console.log('密码重置成功')
         // 密码重置成功后的逻辑...
         ms.success('密码重置成功')
         router.push({ name: 'login' })
@@ -56,7 +61,7 @@ const handleSubmit = async () => {
       }
     }
     else {
-      console.log('验证失败', errors)
+      // console.log('验证失败', errors)
     }
   })
 }
@@ -68,7 +73,7 @@ const startCountdown = async () => {
   countdown.value = 60
   try {
     await getVerificationCode(formValue.value.phoneNumber)
-    console.log('验证码发送成功')
+    // console.log('验证码发送成功')
     // 省略倒计时逻辑...
   }
   catch (error) {
@@ -77,20 +82,34 @@ const startCountdown = async () => {
 }
 
 // computed
-const containerStyle = computed(() => {
-  return isMobile.value ? ' position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%); width: 340px;' : 'width: 340px;'
-})
 const containerClass = computed(() => {
-  return isMobile.value ? 'border shadow rounded  flex flex-col items-center p-4 bg-white' : 'border shadow rounded relative top-32 left-28  flex flex-col items-center p-4 bg-white'
+  return isMobile.value
+    ? 'border shadow rounded flex flex-col absolute'
+    : 'border shadow rounded flex flex-col items-center absolute left-24 top-14'
+})
+const containerStyle = computed(() => {
+  if (isMobile.value)
+    return 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px;'
+  else if (isMedium.value)
+    return 'position: absolute; left: 8vw; width: 340px; top: 15vh;'
+
+  else if (isLarge.value)
+    return 'position: absolute; width: 25vw; left: 6vw;'
+  else if (isXL.value)
+    return 'position: absolute; left: 10vw; width: 35vw; top: 10vh;'
+  else if (isTV.value)
+    return 'position: absolute; left: 15vw; width: 45vw; top: 5vh;'
+
+  return 'position: absolute; width: 340px; left: 24vw; top: 14vh;' // 默认样式
 })
 </script>
 
 <template>
   <div :class="containerClass" :style="containerStyle">
-    <div class="text-2xl font-bold mt-6" style="font-family: 'Microsoft YaHei';">
+    <div class="text-2xl font-bold mt-6" style="font-family: 'Microsoft YaHei'; text-align: center">
       重置密码
     </div>
-    <div class="text-gray-500 text-xs mt-1">
+    <div class="text-gray-500 text-xs mt-1" style="text-align: center">
       请输入您需要重置的账号密码
     </div>
     <NForm

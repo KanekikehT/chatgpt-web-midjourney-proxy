@@ -3,8 +3,9 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NForm, NFormItem, NInput, useMessage } from 'naive-ui'
-import { useBasicLayout } from '@/hooks/useBasicLayout'
+import { useBasicLayout, useLargeLayout, useMediumLayout, useTVLayout, useXLScreenLayout } from '@/hooks/useBasicLayout'
 import { login } from '@/api'
+import { useUserStore } from '@/store'
 
 // variable
 const formRef = ref(null)
@@ -14,8 +15,14 @@ const formValue = ref({
 })
 // 获取是否为移动设备的状态
 const { isMobile } = useBasicLayout()
+const { isMedium } = useMediumLayout()
+const { isLarge } = useLargeLayout()
+const { isXL } = useXLScreenLayout()
+const { isTV } = useTVLayout()
+
 const router = useRouter()
 const ms = useMessage()
+const userStore = useUserStore()
 
 const rules = {
   phoneNumber: [
@@ -35,7 +42,9 @@ const handleSubmit = () => {
       try {
         // 调用API并等待结果
         const response = await login(formValue.value.phoneNumber, formValue.value.password)
-        console.log('登录成功', response)
+        // console.log('登录成功', response)
+        await userStore.updateUserInfo({ token: response.data.jwt, name: response.data.user.username })
+        // console.log('---', userStore.userInfo)
         ms.success('登录成功')
         router.push({ name: 'Chat' })
         // 根据业务需求处理响应，例如保存jwt或跳转到首页
@@ -49,18 +58,34 @@ const handleSubmit = () => {
       }
     }
     else {
-      console.log('验证失败', errors)
+      // console.log('验证失败', errors)
       // 处理表单验证失败的情况
     }
   })
 }
 
 // computed
+// flex flex-col items-center
+// top-14 left-28
 const containerClass = computed(() => {
-  return isMobile.value ? 'border shadow rounded  flex flex-col  items-center' : 'border shadow rounded relative top-14 left-28 flex flex-col items-center'
+  return isMobile.value
+    ? 'border shadow rounded flex flex-col absolute'
+    : 'border shadow rounded flex flex-col items-center absolute left-24 top-14'
 })
 const containerStyle = computed(() => {
-  return isMobile.value ? 'position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%); width: 340px;' : 'width: 340px; height: 80%;'
+  if (isMobile.value)
+    return 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 340px;'
+  else if (isMedium.value)
+    return 'position: absolute; left: 8vw; width: 340px; top: 15vh;'
+
+  else if (isLarge.value)
+    return 'position: absolute; width: 25vw; left: 6vw;'
+  else if (isXL.value)
+    return 'position: absolute; left: 10vw; width: 35vw; top: 10vh;'
+  else if (isTV.value)
+    return 'position: absolute; left: 15vw; width: 45vw; top: 5vh;'
+
+  return 'position: absolute; width: 340px; left: 24vw; top: 14vh;' // 默认样式
 })
 </script>
 

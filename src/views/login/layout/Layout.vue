@@ -9,7 +9,7 @@ const rt = useRoute()
 
 // 使用 computed 来根据 isMobile 状态返回相应的 Tailwind CSS 类
 const bgClass = computed(() => {
-  return isMobile.value ? '' : 'bg-[url("/src/assets/test.png")] bg-no-repeat bg-contain'
+  return isMobile.value ? '' : 'bg-[url("/src/assets/test.png")] bg-no-repeat bg-cover relative'
 })
 </script>
 

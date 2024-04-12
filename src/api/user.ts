@@ -36,3 +36,29 @@ export const getPackagePurchases = (token) => {
     },
   })
 }
+
+// 创建支付订单
+export const createPaymentOrder = (orderInfo, token) => {
+  return axios.post(`${API_BASE_URL}/payments/native`, orderInfo, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+export const queryOrder = (queryInfo, token) => {
+  return axios.post(`${API_BASE_URL}/payments/query-order`, queryInfo, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+// 关闭订单
+export const closeOrder = (orderNumber, token) => {
+  return axios.post(`${API_BASE_URL}/payments/close-order`, { out_trade_no: orderNumber }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}

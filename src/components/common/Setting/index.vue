@@ -2,11 +2,8 @@
 import { computed, ref } from 'vue'
 import { NModal, NTabPane, NTabs } from 'naive-ui'
 import General from './General.vue'
-import Advanced from './Advanced.vue'
 import aiModel from '@/views/mj/aiModel.vue'
-import aiSetServer from '@/views/mj/aiSetServer.vue'
-import About from './About.vue'
-import { homeStore, useAuthStore } from '@/store'
+import { useAuthStore } from '@/store'
 import { SvgIcon } from '@/components/common'
 
 interface Props {
@@ -58,26 +55,24 @@ const show = computed({
           </template>
           <div class="min-h-[100px]">
             <!-- <Advanced /> -->
-            <aiModel/>
+            <aiModel />
           </div>
         </NTabPane>
 
-        <NTabPane name="server" tab="server" v-if=" ! homeStore.myData.session.isHideServer">
+        <!-- <NTabPane name="server" tab="server" v-if=" ! homeStore.myData.session.isHideServer">
           <template #tab>
             <SvgIcon class="text-lg" icon="mingcute:server-line" />
             <span class="ml-2">{{ $t('mjset.server') }}</span>
           </template>
           <aiSetServer />
-        </NTabPane>
-        <NTabPane name="Config" tab="Config">
+        </NTabPane> -->
+        <!-- <NTabPane name="Config" tab="Config">
           <template #tab>
             <SvgIcon class="text-lg" icon="ri:list-settings-line" />
-            <!-- <span class="ml-2">{{ $t('setting.config') }}</span> -->
             <span class="ml-2">{{ $t('mjset.about') }}</span>
           </template>
           <About />
-        </NTabPane>
-
+        </NTabPane> -->
       </NTabs>
     </div>
   </NModal>
