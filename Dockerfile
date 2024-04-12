@@ -1,6 +1,7 @@
-FROM node:lts-alpine
+# 使用具体的 Node.js 版本
+FROM node:18.19-alpine
 
-# 安装 pnpm
+# 安装 pnpm，这里可以选择不指定版本，如果 Node.js 已经是兼容版本
 RUN npm install -g pnpm
 
 WORKDIR /app
