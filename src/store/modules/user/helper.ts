@@ -24,7 +24,7 @@ export function defaultSetting(): UserState {
       points: 0,
       token: '',
     },
-    isLoggedIn: true, // 默认未登录状态
+    isLoggedIn: false, // 默认未登录状态
   }
 }
 
