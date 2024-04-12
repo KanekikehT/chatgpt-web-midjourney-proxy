@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { NModal, useMessage } from 'naive-ui'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { gptConfigStore, homeStore, useAppStore, useChatStore, useUserStore } from '@/store'
@@ -10,6 +11,8 @@ import { t } from '@/locales'
 defineProps<Props>()
 
 const emit = defineEmits<Emit>()
+
+const router = useRouter()
 
 const { isMobile } = useBasicLayout()
 
@@ -45,7 +48,10 @@ function onScrollToTop() {
 function handleReset() {
   userStore.resetUserInfo()
   ms.success(t('common.success'))
-  window.location.reload()
+  router.replace({ name: 'login' }).then(() => {
+    // 页面跳转后强制刷新页面，确保应用状态完全重置
+    window.location.reload()
+  })
 }
 
 function handleExport() {
