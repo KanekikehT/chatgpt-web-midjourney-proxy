@@ -1,21 +1,21 @@
-
-# 使用 Node.js v16.14 的镜像
+# 使用具体的 Node.js 版本
 FROM node:16.14-alpine
 
-# 设置工作目录
-WORKDIR /app
-
-
-# 复制 package.json 和 pnpm-lock.yaml
-COPY ./service/package.json ./service/pnpm-lock.yaml /app/
-
-# 安装 pnpm
+# 安装 pnpm，这里可以选择不指定版本，如果 Node.js 已经是兼容版本
 RUN npm install -g pnpm
 
-# 安装依赖
-RUN pnpm install --production && rm -rf /root/.npm /root/.pnpm-store /usr/local/share/.cache /tmp/*
+WORKDIR /app
 
-# 复制项目文件
-COPY ./service /app
+# 假设你的后端服务文件在本地的 service 目录中
+# 并且前端构建产物在本地的 dist 目录中
 
-# 其他设置和命令
+# 复制后端服务目录到容器中
+COPY ./service ./
+
+# 从前端构建阶段复制构建产物到 public 目录
+COPY ./dist ./public
+
+EXPOSE 3002
+
+# 假设你的启动脚本在 package.json 中定义，并且位于 service 目录
+CMD ["pnpm", "run", "prod"]
