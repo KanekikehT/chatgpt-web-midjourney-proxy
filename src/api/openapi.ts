@@ -306,7 +306,7 @@ export const subModel= async (opt: subModelType)=>{
         headers={...headers,...getHeaderAuthorization()}
 
         try {
-         await fetchSSE( `http://express.noword.tech${gptGetUrl('/v1/chat/completions')}`,{
+         await fetchSSE( `https://express.noword.tech${gptGetUrl('/v1/chat/completions')}`,{
             method: 'POST',
             headers: headers,
             signal:opt.signal,
