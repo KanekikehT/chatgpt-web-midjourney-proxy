@@ -144,7 +144,7 @@ const getUrl=(url:string)=>{
     if(gptServerStore.myData.MJ_SERVER){
         return `${ gptServerStore.myData.MJ_SERVER}${url}`;
     }
-    return `/mjapi${url}`;
+    return `http://express.noword.tech/mjapi${url}`;
 }
 
 export const mjFetch=(url:string,data?:any)=>{
