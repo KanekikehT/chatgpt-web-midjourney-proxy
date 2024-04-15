@@ -306,14 +306,14 @@ export const subModel= async (opt: subModelType)=>{
         headers={...headers,...getHeaderAuthorization()}
 
         try {
-         await fetchSSE( gptGetUrl('/v1/chat/completions'),{
+         await fetchSSE( `http://express.noword.tech${gptGetUrl('/v1/chat/completions')}`,{
             method: 'POST',
             headers: headers,
             signal:opt.signal,
             onMessage: async (data:string)=> {
                  //mlog('🐞测试'  ,  data )  ;
                  if(data=='[DONE]') opt.onMessage({text:'',isFinish:true})
-                 else {
+                 else { 
                     const obj= JSON.parse(data );
                     opt.onMessage({text:obj.choices[0].delta?.content??'' ,isFinish:obj.choices[0].finish_reason!=null })
                  }
