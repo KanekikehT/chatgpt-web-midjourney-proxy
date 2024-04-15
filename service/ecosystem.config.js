@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'chatgpt-web-service',
+    name: 'wenwuai',
     script: './build/index.mjs',
     instances: 1,
     autorestart: true,
