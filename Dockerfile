@@ -1,21 +1,55 @@
-FROM node:16.14-alpine
+# build front-end
+FROM node:lts-alpine AS frontend
 
-# 安装 pnpm
-RUN npm install -g pnpm
+RUN npm install pnpm -g
 
 WORKDIR /app
 
-# 首先复制 package.json 和 pnpm-lock.yaml
-COPY ./service/package.json ./service/pnpm-lock.yaml ./
+COPY ./package.json /app
 
-# 安装依赖
+COPY ./pnpm-lock.yaml /app
+
 RUN pnpm install
 
-# 然后复制剩余的后端服务文件到容器中
-COPY ./service ./
+COPY . /app
 
-# 从前端构建阶段复制构建产物到 public 目录
-COPY ./dist ./public
+RUN pnpm run build
+
+# build backend
+FROM node:lts-alpine as backend
+
+RUN npm install pnpm -g
+
+WORKDIR /app
+
+COPY /service/package.json /app
+
+COPY /service/pnpm-lock.yaml /app
+
+RUN pnpm install
+
+COPY /service /app
+
+RUN pnpm build
+
+# service
+FROM node:lts-alpine
+
+RUN npm install pnpm -g
+
+WORKDIR /app
+
+COPY /service/package.json /app
+
+COPY /service/pnpm-lock.yaml /app
+
+RUN pnpm install --production && rm -rf /root/.npm /root/.pnpm-store /usr/local/share/.cache /tmp/*
+
+COPY /service /app
+
+COPY --from=frontend /app/dist /app/public
+
+COPY --from=backend /app/build /app/build
 
 EXPOSE 3002
 
