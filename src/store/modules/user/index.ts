@@ -18,5 +18,10 @@ export const useUserStore = defineStore('user-store', {
     recordState() {
       setLocalState(this.$state)
     },
+
+    setLoggedIn(isLoggedIn: boolean) {
+      this.isLoggedIn = isLoggedIn
+      this.recordState()
+    },
   },
 })

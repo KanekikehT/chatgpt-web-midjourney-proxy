@@ -43,7 +43,8 @@ const handleSubmit = () => {
         // 调用API并等待结果
         const response = await login(formValue.value.phoneNumber, formValue.value.password)
         // console.log('登录成功', response)
-        await userStore.updateUserInfo({ token: response.data.jwt, name: response.data.user.username, isLoggedIn: true })
+        await userStore.updateUserInfo({ token: response.data.jwt, name: response.data.user.username })
+        await userStore.setLoggedIn(true)
         // console.log('---', userStore.userInfo)
         ms.success('登录成功')
         router.push({ name: 'Chat' })
