@@ -510,7 +510,6 @@ const getModelMax=( model:string )=>{
 
 export const encodeAsync = async ( ) => {
   const { encode } = await import('gpt-tokenizer');
-
   return encode;//(str).length;
 };
 export const encodeChatAsync = async ( ) => {
