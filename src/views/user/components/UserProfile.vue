@@ -28,11 +28,6 @@ const props = defineProps<{
       <h2 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
         {{ userInfo.name }}
       </h2>
-      <p
-        class="mt-4 bg-blue-100 text-blue-800 text-sm font-semibold px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800"
-      >
-        剩余积分: {{ userInfo.points }}
-      </p>
     </div>
 
     <!-- 提示 -->

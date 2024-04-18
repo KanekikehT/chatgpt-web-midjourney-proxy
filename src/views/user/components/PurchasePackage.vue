@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { NButton, NModal, NQrCode } from 'naive-ui'
+import { NButton, NModal, NQrCode, useMessage } from 'naive-ui'
 import { convertPrice, generateOut_trade_no, queryOrderStatus, startCountdown } from '../utils/packageService'
 import { closeOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
@@ -18,6 +18,7 @@ const queryInterval = ref(null)
 const pollingActive = ref(false)
 const userStore = useUserStore()
 const { token } = userStore.userInfo
+const ms = useMessage()
 // //('---', token)
 
 // 在组件挂载时调用API获取套餐列表
@@ -43,13 +44,10 @@ const closeModalAndOrder = async () => {
   // 停止轮询查询订单状态
   if (queryInterval.value)
     clearInterval(queryInterval.value)
-
   // 调用API尝试关闭订单，仅当订单号存在且订单未支付时执行
   if (orderNumber.value && !orderPaid.value) {
     try {
       const response = await closeOrder(orderNumber.value, token)
-      // //('关闭订单的响应:', response.data)
-      // 这里可以根据响应进一步处理，比如通知用户订单已关闭
     }
     catch (error) {
       console.error('关闭订单失败:', error.response ? error.response.data : error)
@@ -107,9 +105,11 @@ const purchasePackage = async (packageDetail) => {
             await createPackagePurchase(packagePurchaseData, token)
             purchaseRecordCreated = true // 标记购买记录已创建
           }
-          if (orderPaid.value || countdown.value <= 0)
+          if (orderPaid.value || countdown.value <= 0) {
             closeModalAndOrder()
-        }, 5000)
+            ms.success('支付成功')
+          }
+        }, 3000)
       }
       else {
         console.error('无法获取支付信息')
