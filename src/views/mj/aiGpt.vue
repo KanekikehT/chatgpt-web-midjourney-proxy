@@ -2,7 +2,7 @@
 import { computed,   ref,watch  } from 'vue' 
 import { useRoute } from 'vue-router'
 import { useChat } from '../chat/hooks/useChat' 
-import {  homeStore, useChatStore } from '@/store'
+import {  homeStore, useChatStore,useUserStore } from '@/store'
 import { getInitChat, mlog, subModel,getSystemMessage , localSaveAny, canVisionModel
     ,isTTS, subTTS, file2blob, whisperUpload, getHistoryMessage, checkDisableGpt4, chatSetting } from '@/api'
 //import { isNumber } from '@/utils/is'

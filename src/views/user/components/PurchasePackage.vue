@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { NButton, NModal, NQrCode } from 'naive-ui'
 import { convertPrice, generateOut_trade_no, queryOrderStatus, startCountdown } from '../utils/packageService'
-import { closeOrder, createPaymentOrder, getPackages } from '@/api'
+import { closeOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useUserStore } from '@/store'
 
@@ -18,7 +18,7 @@ const queryInterval = ref(null)
 const pollingActive = ref(false)
 const userStore = useUserStore()
 const { token } = userStore.userInfo
-// console.log('---', token)
+// //('---', token)
 
 // 在组件挂载时调用API获取套餐列表
 onMounted(async () => {
@@ -48,7 +48,7 @@ const closeModalAndOrder = async () => {
   if (orderNumber.value && !orderPaid.value) {
     try {
       const response = await closeOrder(orderNumber.value, token)
-      // console.log('关闭订单的响应:', response.data)
+      // //('关闭订单的响应:', response.data)
       // 这里可以根据响应进一步处理，比如通知用户订单已关闭
     }
     catch (error) {
@@ -73,42 +73,45 @@ const purchasePackage = async (packageDetail) => {
   if (!isMobile.value) {
     try {
       orderNumber.value = generateOut_trade_no() // 生成唯一订单号
-      // console.log('---', orderNumber.value)
-      // 设置调用API的参数
       const orderInfo = {
-        description: packageDetail.name, // 使用套餐名称作为商品描述
-        out_trade_no: orderNumber.value, // 使用生成的唯一订单号
-        notify_url: 'https://localhost:1337/api/payments/callback', // 回调地址
+        description: packageDetail.name,
+        out_trade_no: orderNumber.value,
+        notify_url: 'https://api.noword.tech/api/payments/callback',
         amount: {
-          total: convertPrice(packageDetail.price), // 设置价格，注意单位是分
-          currency: 'CNY', // 设置货币类型
+          total: convertPrice(packageDetail.price), // 注意单位是分
+          currency: 'CNY',
         },
       }
 
-      // 调用创建支付订单的API...
       const response = await createPaymentOrder(orderInfo, token)
-      // console.log('---', response)
-      // 检查API调用结果
       if (response.data && response.data.data.code_url) {
         qrCodeUrl.value = response.data.data.code_url // 获取支付二维码URL
         showModal.value = true // 显示二维码模态框
-        // 付款后开始轮询查询订单状态
         pollingActive.value = true
+        let purchaseRecordCreated = false // 新增状态标志
+
         queryInterval.value = setInterval(async () => {
           if (!pollingActive.value) {
-            // 如果轮询不再激活，立即清除定时器并退出
             clearInterval(queryInterval.value)
             return
           }
           const { data } = await queryOrderStatus(orderNumber.value, token)
-          if (data.data.trade_state === 'SUCCESS')
+          if (data.data.trade_state === 'SUCCESS' && !purchaseRecordCreated) {
             orderPaid.value = true
+            const packagePurchaseData = {
+              name: packageDetail.name,
+              points: packageDetail.points,
+              price: packageDetail.price,
+              validity: packageDetail.validity,
+            }
+            await createPackagePurchase(packagePurchaseData, token)
+            purchaseRecordCreated = true // 标记购买记录已创建
+          }
           if (orderPaid.value || countdown.value <= 0)
             closeModalAndOrder()
-        }, 5000) // 每5秒查询一次订单状态
+        }, 5000)
       }
       else {
-        // 处理错误或无法获取支付信息的情况
         console.error('无法获取支付信息')
       }
     }
@@ -117,7 +120,7 @@ const purchasePackage = async (packageDetail) => {
     }
   }
   else {
-    // console.log('此功能在移动设备上不可用')
+    // 此功能在移动设备上不可用
   }
 }
 </script>

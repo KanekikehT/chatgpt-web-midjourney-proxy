@@ -1,24 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NPagination, NTable } from 'naive-ui'
+import { useUserStore } from '@/store'
 
-const packages = ref([
-  { name: 'Package A', points: 100, price: '10$', validity: '30 Days', usedPoints: 20 },
-  { name: 'Package B', points: 200, price: '20$', validity: '60 Days', usedPoints: 50 },
-  { name: 'Package C', points: 300, price: '30$', validity: '90 Days', usedPoints: 80 },
-  { name: 'Package D', points: 400, price: '40$', validity: '120 Days', usedPoints: 100 },
-  { name: 'Package E', points: 500, price: '50$', validity: '150 Days', usedPoints: 150 },
-  { name: 'Package F', points: 600, price: '60$', validity: '180 Days', usedPoints: 200 },
-])
+const userStore = useUserStore()
+
+// 确保packages始终是一个已定义的数组
+const packages = computed(() => userStore.userInfo.packages || [])
 
 const pageSize = 5
 const currentPage = ref(1)
-const pageCount = ref(Math.ceil(packages.value.length / pageSize))
 
-const paginatedPackages = () => {
-  const start = (currentPage.value - 1) * pageSize
-  return packages.value.slice(start, start + pageSize)
-}
+// 使用计算属性安全地计算页面数
+const pageCount = computed(() => {
+  return packages.value.length ? Math.ceil(packages.value.length / pageSize) : 0
+})
+
+// 分页逻辑也应确保packages.value是一个数组
+const paginatedPackages = computed(() => {
+  if (packages.value.length) {
+    const start = (currentPage.value - 1) * pageSize
+    return packages.value.slice(start, start + pageSize)
+  }
+  return [] // 当packages为空时返回空数组
+})
+
+onMounted(() => {
+  userStore.loadPackagePurchases()
+})
 
 const updatePage = (page) => {
   currentPage.value = page
@@ -38,7 +47,7 @@ const updatePage = (page) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(pkg, index) in paginatedPackages()" :key="index">
+        <tr v-for="(pkg, index) in paginatedPackages" :key="index">
           <td>{{ pkg.name }}</td>
           <td>{{ pkg.points }}</td>
           <td>{{ pkg.price }}</td>

@@ -73,7 +73,7 @@ const ccgo = (event: any) => {
     //     format: ['mp3'],
     //     volume: 0.5,
     //     onend: function() {
-    //       //console.log('音乐播放完毕');
+    //       ////('音乐播放完毕');
     //     }
     //     ,onloaderror:(e:any )=>{
     //          mlog('onloaderror' ,e  )

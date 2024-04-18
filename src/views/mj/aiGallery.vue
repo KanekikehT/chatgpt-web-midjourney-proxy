@@ -24,7 +24,7 @@ const initLoad = () => {
 }
 watch(() => homeStore.myData.act, (act) => {
   act == 'gallery' && (st.value.showImg = true)
-  // act=='copy' &&   copyText3('addd890').then(dd=>//console.log('ddd',dd ) );
+  // act=='copy' &&   copyText3('addd890').then(dd=>////('ddd',dd ) );
 })
 
 const tjBaidu = (baiduID: string) => {

@@ -133,7 +133,7 @@ const loadImagFormLocal = async () => {
   //     .then((d) => {
   //         // st.value.style= d.data.style
   //         // st.value.example= d.data.example
-  //         //console.log(d)
+  //         ////(d)
   //         list.value= d.data.images.map((v:any)=>{
   //             v.isLoad=0
   //             return  v;
@@ -141,16 +141,16 @@ const loadImagFormLocal = async () => {
   //     } )
 }
 const goShow = (item: any) => {
-  /// /console.log('goShow', isMobile );
+  /// ///('goShow', isMobile );
   if (isMobile.value)
     return
   st.value.show = true
   st.value.showImg = item.image_url
-  /// /console.log('goShow', item);
+  /// ///('goShow', item);
   nextTick(() => showImg.value?.click())
 }
 // function copy( item:any){
-//   ////console.log('copy', item.prompt );
+//   //////('copy', item.prompt );
 // 	//copyText3(  item.prompt ).then(()=>msgRef.value.showMsg('复制成功！'));
 //   homeStore.setMyData({act:'copy',actData: {text: item.prompt } });
 // 	//copyToClip(  item.prompt ).then(()=>msgRef.value.showMsg('复制成功！'));
@@ -158,7 +158,7 @@ const goShow = (item: any) => {
 
 // 画同款
 const same = (item: any, act: string) => {
-  /// /console.log('same',item);
+  /// ///('same',item);
   homeStore.setMyData({ act, actData: JSON.parse(JSON.stringify(item)) }) // :'same'
   emit('close')
 }

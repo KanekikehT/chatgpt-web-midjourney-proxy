@@ -1,3 +1,4 @@
+
 export function copyToClip(text: string) {
   return new Promise((resolve, reject) => {
     try {

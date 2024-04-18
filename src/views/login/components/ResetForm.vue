@@ -50,7 +50,7 @@ const handleSubmit = async () => {
       const { phoneNumber, password, code } = formValue.value
       try {
         await resetPassword(phoneNumber, password, code)
-        // console.log('密码重置成功')
+        // //('密码重置成功')
         // 密码重置成功后的逻辑...
         ms.success('密码重置成功')
         router.push({ name: 'login' })
@@ -61,7 +61,7 @@ const handleSubmit = async () => {
       }
     }
     else {
-      // console.log('验证失败', errors)
+      // //('验证失败', errors)
     }
   })
 }
@@ -73,7 +73,7 @@ const startCountdown = async () => {
   countdown.value = 60
   try {
     await getVerificationCode(formValue.value.phoneNumber)
-    // console.log('验证码发送成功')
+    // //('验证码发送成功')
     // 省略倒计时逻辑...
   }
   catch (error) {

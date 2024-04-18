@@ -53,7 +53,7 @@ const handleSubmit = async () => {
         // 调用注册API
         const response = await register(phoneNumber, password, code)
         ms.success('注册成功')
-        // console.log('注册成功', response)
+        // //('注册成功', response)
         router.push({ name: 'login' })
         // 根据业务需求处理注册成功后的逻辑，例如跳转到登录页面或首页
       }
@@ -64,7 +64,7 @@ const handleSubmit = async () => {
       }
     }
     else {
-      // console.log('验证失败', errors)
+      // //('验证失败', errors)
       // 处理表单验证失败的情况
     }
   })
@@ -76,7 +76,7 @@ const startCountdown = async () => {
 
   try {
     await getVerificationCode(formValue.value.phoneNumber) // 调用获取验证码的API
-    // console.log('验证码发送成功') // 可以在这里添加成功提示
+    // //('验证码发送成功') // 可以在这里添加成功提示
     ms.success('验证码发送成功')
     // 开始倒计时
     isCountingDown.value = true

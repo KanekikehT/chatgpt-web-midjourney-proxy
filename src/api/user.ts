@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const API_BASE_URL = 'http://localhost:1337/api'
-const API_BASE_URL = 'https://api.noword.tech/api'
+const API_BASE_URL = 'http://localhost:1337/api'
+// const API_BASE_URL = 'https://api.noword.tech/api'
 
 // 用户登录
 export const login = (phoneNumber: string, password: string) => {
@@ -57,6 +57,33 @@ export const queryOrder = (queryInfo, token) => {
 // 关闭订单
 export const closeOrder = (orderNumber, token) => {
   return axios.post(`${API_BASE_URL}/payments/close-order`, { out_trade_no: orderNumber }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+// 添加购买套餐记录
+export const createPackagePurchase = (packageData, token) => {
+  return axios.post(`${API_BASE_URL}/package-purchases`, { data: packageData }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+// 查询当前用户的购买套餐记录
+export const findPackagePurchases = (token) => {
+  return axios.get(`${API_BASE_URL}/package-purchases`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+// 更新购买套餐记录
+export const updatePackagePurchase = (packageId, packageData, token) => {
+  return axios.put(`${API_BASE_URL}/package-purchases/${packageId}`, { data: packageData }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

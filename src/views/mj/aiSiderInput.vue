@@ -16,7 +16,7 @@ const { isMobile } = useBasicLayout()
 
 const st = ref({ show: false })
 const handleUpdateCollapsed = (value: boolean) => {
-  // console.log(value);
+  // //(value);
 }
 const isLoading = computed(() => {
   return pp.buttonDisabled

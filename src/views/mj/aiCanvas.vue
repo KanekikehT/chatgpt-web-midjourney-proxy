@@ -28,14 +28,14 @@ onUnmounted(() => {
 
 // 收到iframe的消息
 const messageFun = (e: MessageEvent) => {
-  /// /console.log('我收到消息了', e.data );
+  /// ///('我收到消息了', e.data );
   if (!e?.data)
     return
   const obj = JSON.parse(e.data)
   emits('success', obj)
 }
 const loadOk = (e: Event) => {
-  /// /console.log('loadOk','good news' );
+  /// ///('loadOk','good news' );
   const iframe = e.target as HTMLIFrameElement
   iframe.contentWindow && iframe.contentWindow.postMessage(JSON.stringify({ act: 'go', img_info: { image_url: pp.base64 == '' ? pp.chat?.opt?.imageUrl : pp.base64, prompt: '' } }), '*')// pp.chat?.text
 }
