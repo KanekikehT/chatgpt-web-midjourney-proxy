@@ -209,9 +209,14 @@ if (isUpload) {
     app.use('/openapi/v1/upload', authV2, upload.single('file'), (req, res) => {
       // res.send('文件上传成功！');
       res.setHeader('Content-type', 'application/json')
-      if (req.file.filename)
-        res.json({ url: `/uploads/${formattedDate()}/${req.file.filename}`, created: Date.now() })
-      else res.json({ error: 'uploader fail', created: Date.now() })
+      if (req.file) {
+        const baseUrl = process.env.BASE_URL || 'https://express.noword.tech' // 默认值为你的域名
+        const fullPath = `${baseUrl}/uploads/${formattedDate()}/${req.file.filename}`
+        res.json({ url: fullPath, created: Date.now() })
+      }
+      else {
+        res.json({ error: 'uploader fail', created: Date.now() })
+      }
     })
   }
 }
