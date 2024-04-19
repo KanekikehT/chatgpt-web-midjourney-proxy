@@ -35,7 +35,7 @@ const updatePage = (page) => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col table-container">
     <NTable :bordered="false" :single-line="false">
       <thead>
         <tr>
@@ -59,3 +59,6 @@ const updatePage = (page) => {
     <NPagination :page="currentPage" :page-count="pageCount" class="mt-2" @update:page="updatePage" />
   </div>
 </template>
+
+<style>
+</style>

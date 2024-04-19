@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref } from 'vue'
-import { NTooltip } from 'naive-ui'
+import { NTooltip,useMessage } from 'naive-ui'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { homeStore, useChatStore, useUserStore } from '@/store'
@@ -16,7 +16,7 @@ const userStore = useUserStore()
 const st = ref({ show: false, showImg: false, menu: [], active: 'chat' })
 
 const userInfo = computed(() => userStore.userInfo)
-
+const ms=useMessage()
 const goHome = computed(() => {
   // router.push('/')
   return router.currentRoute.value.name
@@ -32,6 +32,10 @@ const goHome = computed(() => {
 // }
 // mlog('g', goHome() );
 const chatId = computed(() => chatStore.active ?? '1002')
+
+function handleclick(){
+  ms.info('暂未开放，敬请期待')
+}
 </script>
 
 <template>
@@ -53,8 +57,9 @@ const chatId = computed(() => chatStore.active ?? '1002')
             AI Chat
           </NTooltip>
         </a>
+        <!-- @click="homeStore.setMyData({ act: 'showgpts' })" -->
         <a class=" router-link-exact-active h-12 w-12 cursor-pointer rounded-xl bg-white duration-300 dark:bg-[#34373c] hover:bg-[#bbb] dark:hover:bg-[#555]"
-          @click="homeStore.setMyData({ act: 'showgpts' })">
+          @click="handleclick">
           <NTooltip placement="right" trigger="hover">
             <template #trigger>
               <div class="flex h-full justify-center items-center   py-1 flex-col">
@@ -117,7 +122,6 @@ const chatId = computed(() => chatStore.active ?? '1002')
                 <span class="text-[10px]">{{ $t('mjtab.announcement') }}</span>
               </div>
             </template>
-            {{ $t('mjtab.userprofileInfo') }}
           </NTooltip>
         </a>
 

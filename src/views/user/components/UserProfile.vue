@@ -39,10 +39,9 @@ function handleLoginClick() {
 <template>
   <!-- 用户信息 -->
   <div class="p-4 md:p-8 bg-white dark:bg-[#1E1E1E] rounded-xl shadow-lg">
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center mb-6"> <!-- 增加 mb-6 提供视觉分隔 -->
       <img :src="userInfo.avatar" alt="用户头像" class="w-24 h-24 rounded-full border-2 border-gray-400 dark:border-gray-600">
-<h2 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200 cursor-pointer"
-          @click="handleLoginClick">
+      <h2 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200 cursor-pointer" @click="handleLoginClick">
         {{ userInfo.name }}
       </h2>
     </div>
