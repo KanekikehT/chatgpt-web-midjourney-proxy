@@ -600,9 +600,6 @@ const ychat = computed(() => {
     />
     <main class="flex-1 overflow-hidden">
       <!-- 提示 -->
-      <NAlert type="warning" closable class="mt-6">
-        <span>提醒：</span>当前网站正在测试阶段，所有模型均可使用，无需付费。
-      </NAlert>
       <div id="scrollRef" ref="scrollRef" class="h-full overflow-hidden overflow-y-auto">
         <div
           id="image-wrapper"

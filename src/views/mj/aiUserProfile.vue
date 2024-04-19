@@ -1,3 +1,5 @@
+<!-- aiUserProfile.vue -->
+
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { NDrawer, NDrawerContent } from 'naive-ui'

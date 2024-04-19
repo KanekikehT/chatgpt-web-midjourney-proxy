@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // pacakge
-import { defineProps } from 'vue'
+import { defineProps,computed } from 'vue'
 import { NAlert, NTabPane, NTabs } from 'naive-ui'
+import { useRouter } from 'vue-router'
 
 // page
 import UserPacakge from './UserPacakge.vue'
@@ -11,13 +12,28 @@ import PurchasePackage from './PurchasePackage.vue'
 interface UserInfo {
   avatar: string
   name: string
-  points: number
 }
 
 const props = defineProps<{
   userInfo: UserInfo
   isLoggedIn: boolean
 }>()
+
+// variables
+const router = useRouter()
+
+// 计算属性来检查用户是否需要登录
+const needsLogin = computed(() => props.userInfo.name === '请登陆')
+
+// 直接创建一个方法来处理点击事件
+function handleLoginClick() {
+  if (needsLogin.value) {
+    router.push({ name: 'login' }).catch(err => {
+      console.error('Router push error:', err);
+    });
+  }
+}
+
 </script>
 
 <template>
@@ -25,15 +41,12 @@ const props = defineProps<{
   <div class="p-4 md:p-8 bg-white dark:bg-[#1E1E1E] rounded-xl shadow-lg">
     <div class="flex flex-col items-center">
       <img :src="userInfo.avatar" alt="用户头像" class="w-24 h-24 rounded-full border-2 border-gray-400 dark:border-gray-600">
-      <h2 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
+<h2 class="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-200 cursor-pointer"
+          @click="handleLoginClick">
         {{ userInfo.name }}
       </h2>
     </div>
 
-    <!-- 提示 -->
-    <NAlert type="warning" closable class="mt-4">
-      <span>提醒：</span>当您的积分消耗完或套餐过期之后，再重新购买套餐。
-    </NAlert>
 
     <!-- 选项卡 -->
     <NTabs
@@ -53,7 +66,6 @@ const props = defineProps<{
         <PurchasePackage />
       </NTabPane>
       <NTabPane name="邀请好友" tab="邀请好友" />
-      <NTabPane name="系统公告" tab="系统公告" />
     </NTabs>
   </div>
 </template>

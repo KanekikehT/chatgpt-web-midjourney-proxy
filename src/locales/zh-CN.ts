@@ -109,6 +109,7 @@ export default {
     galleryInfo: '我的画廊',
     userprofile: '我的',
     userprofileInfo: '个人资料',
+    announcement:'公告'
   },
   mjchat: {
     loading: '正在载入图片',
