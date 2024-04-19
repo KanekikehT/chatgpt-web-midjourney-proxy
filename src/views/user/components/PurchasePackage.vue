@@ -121,7 +121,7 @@ const purchasePackage = async (packageDetail) => {
   }
   else {
     // 此功能在移动设备上不可用
-    ms.info('暂不支持手机端支付，不便之处请见谅')
+    ms.info('请使用电脑浏览器打开此页面')
   }
 }
 </script>
