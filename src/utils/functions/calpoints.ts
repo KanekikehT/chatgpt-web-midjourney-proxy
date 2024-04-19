@@ -26,6 +26,10 @@ export async function calculateAndUpdatePoints(model: string): Promise<string> {
     if (remainingPoints <= 0)
       break
 
+    // 检查套餐是否过期
+    if (pkg.validity === '已过期')
+      continue
+
     const availablePoints = pkg.points - pkg.usedPoints
     if (availablePoints > 0) {
       const pointsToDeduct = Math.min(availablePoints, remainingPoints)

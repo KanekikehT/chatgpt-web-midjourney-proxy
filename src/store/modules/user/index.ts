@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import moment from 'moment'
 import type { UserInfo, UserState } from './helper'
 import { defaultSetting, getLocalState, setLocalState } from './helper'
 import { findPackagePurchases, updatePackagePurchase } from '@/api'
@@ -34,15 +35,26 @@ export const useUserStore = defineStore('user-store', {
         const response = await findPackagePurchases(this.userInfo.token)
         console.log('Package purchases response:', response.data)
         if (response && response.data) {
-          this.userInfo.packages = response.data.data.map(item => ({
-            id: item.id,
-            name: item.attributes.name,
-            points: item.attributes.points,
-            price: `${item.attributes.price}￥`,
-            validity: item.attributes.validity,
-            usedPoints: item.attributes.usedPoints, // 这里假设用于显示的usedPoints初始值为0，可以根据实际需要进行调整
-          }))
+          const today = moment()
+          this.userInfo.packages = response.data.data.map((item) => {
+            const endDate = moment(item.attributes.validity.split(' - ')[1], 'YYYY-MM-DD')
+            const isExpired = today.isAfter(endDate)
+
+            // 如果套餐已过期，自动更新其有效性
+            if (isExpired)
+              this.updatePackageInfo(item.id, { validity: '已过期' })
+
+            return {
+              id: item.id,
+              name: item.attributes.name,
+              points: item.attributes.points,
+              price: `${item.attributes.price}￥`,
+              validity: isExpired ? '已过期' : item.attributes.validity,
+              usedPoints: item.attributes.usedPoints,
+            }
+          })
         }
+        this.recordState()
       }
       catch (error) {
         console.error('加载套餐信息失败:', error)

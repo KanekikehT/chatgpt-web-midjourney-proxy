@@ -29,8 +29,9 @@ const getUrl = (url: string) => {
   if (gptServerStore.myData.OPENAI_API_BASE_URL)
     return `${gptServerStore.myData.OPENAI_API_BASE_URL}${url}`
 
-  return `/openapi${url}`
+  return `https://express.noword.tech/openapi${url}`
 }
+
 export const gptGetUrl = getUrl
 export const gptFetch = (url: string, data?: any, opt2?: any) => {
   mlog('gptFetch', url)
@@ -273,28 +274,37 @@ Latex inline: $x^2$
 Latex block: $$e=mc^2$$`
   return DEFAULT_SYSTEM_TEMPLATE
 }
-export const subModel = async (opt: subModelType) => {
-  //
-  const model = opt.model ?? (gptConfigStore.myData.model ? gptConfigStore.myData.model : 'gpt-3.5-turbo')
-  let max_tokens = gptConfigStore.myData.max_tokens
-  let temperature = 0.5
+export async function subModel(opt: subModelType) {
+  const model = opt.model ?? 'gpt-3.5-turbo'
+  let max_tokens = 1024 // 默认值，应根据实际模型调整
+  let temperature = 0.7
   let top_p = 1
-  let presence_penalty = 0; let frequency_penalty = 0
+  let presence_penalty = 0
+  let frequency_penalty = 0
+
+  // 加载用户的配置
   if (opt.uuid) {
-    const chatSet = new chatSetting(+opt.uuid)
-    const gStore = chatSet.getGptConfig()
+    const chatSettings = new chatSetting(+opt.uuid)
+    const gStore = chatSettings.getGptConfig()
     temperature = gStore.temperature ?? temperature
     top_p = gStore.top_p ?? top_p
     presence_penalty = gStore.presence_penalty ?? presence_penalty
     frequency_penalty = gStore.frequency_penalty ?? frequency_penalty
-    max_tokens = gStore.max_tokens
+    max_tokens = gStore.max_tokens ?? max_tokens
   }
-  if (model == 'gpt-4-vision-preview' && max_tokens > 2048)
-    max_tokens = 2048
 
+  const pointsResult = await calculateAndUpdatePoints(model)
+  console.log('积分状态', pointsResult)
+  if (pointsResult !== '积分更新成功。') {
+    // 如果积分不足，不使用弹窗，而是将错误传递给 onError 回调
+    opt.onError && opt.onError({ message: pointsResult })
+    return
+  }
+
+  // 构建请求体
   const body = {
-    max_tokens,
     model,
+    max_tokens,
     temperature,
     top_p,
     presence_penalty,
@@ -302,30 +312,22 @@ export const subModel = async (opt: subModelType) => {
     messages: opt.message,
     stream: true,
   }
-  //
 
+  // 请求头
   let headers = {
     'Content-Type': 'application/json',
-    // ,'Authorization': 'Bearer ' +gptServerStore.myData.OPENAI_API_KEY
-    'Accept': 'text/event-stream ',
+    'Accept': 'text/event-stream',
   }
   headers = { ...headers, ...getHeaderAuthorization() }
 
   try {
-    await fetchSSE(`https://express.noword.tech${gptGetUrl('/v1/chat/completions')}`, {
+    await fetchSSE(gptGetUrl('/v1/chat/completions'), {
       method: 'POST',
       headers,
+      body: JSON.stringify(body),
       signal: opt.signal,
       onMessage: async (data: string) => {
-        // mlog('🐞测试'  ,  data )  ;
         if (data == '[DONE]') {
-          // API 调用成功后，计算并更新积分
-          const pointsResult = await calculateAndUpdatePoints(model)
-          console.log('Points result:', pointsResult)
-          if (pointsResult !== '积分更新成功。') {
-            opt.onError && opt.onError(new Error(pointsResult)) // 积分不足处理
-            return
-          }
           opt.onMessage({ text: '', isFinish: true })
         }
         else {
@@ -333,16 +335,11 @@ export const subModel = async (opt: subModelType) => {
           opt.onMessage({ text: obj.choices[0].delta?.content ?? '', isFinish: obj.choices[0].finish_reason != null })
         }
       },
-      onError(e) {
-        // console.log('eee>>', e )
-        mlog('❌未错误', e)
-        opt.onError && opt.onError(e)
-      },
-      body: JSON.stringify(body),
+      onError: opt.onError,
     })
   }
   catch (error) {
-    mlog('❌未错误2', error)
+    console.error('请求过程中发生错误', error)
     opt.onError && opt.onError(error)
   }
 }

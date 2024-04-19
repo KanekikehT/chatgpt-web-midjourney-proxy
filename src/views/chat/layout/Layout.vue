@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { NLayout, NLayoutContent, NModalProvider, useMessage } from 'naive-ui'
 import { useRoute, useRouter } from 'vue-router'
 import Sider from './sider/index.vue'
@@ -54,6 +54,11 @@ const getContainerClass = computed(() => {
     'h-full',
     { abc: !isMobile.value && !collapsed.value },
   ]
+})
+
+onMounted(() => {
+  if (isLoggedIn)
+    userStore.loadPackagePurchases()
 })
 </script>
 
