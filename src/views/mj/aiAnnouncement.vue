@@ -24,7 +24,7 @@ function closeDrawer() {
     :class="isMobile ? ['!h-[90vh]'] : ['!w-[50vw]']" style="--n-body-padding:0"
   >
     <NDrawerContent title="文无便利店公告" closable @close="closeDrawer">
-      <img src="../../assets/wenwu.svg" alt="文无便利店公告" class="mx-auto">
+      <img src="https://kanekikeh.online/calvin/wenwu.svg" alt="文无便利店公告" class="mx-auto">
     </NDrawerContent>
   </NDrawer>
 </template>
