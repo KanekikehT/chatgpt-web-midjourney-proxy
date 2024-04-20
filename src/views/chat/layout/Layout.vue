@@ -57,8 +57,6 @@ const getContainerClass = computed(() => {
 })
 
 onMounted(() => {
-  if (isLoggedIn)
-    userStore.loadPackagePurchases()
   const userInfo = userStore.userInfo
   const token = userInfo.token
   if ((userInfo.newuser === true || userInfo.newuser === null) && token) {
@@ -79,6 +77,8 @@ onMounted(() => {
       }
     })()
   }
+  if (isLoggedIn)
+    userStore.loadPackagePurchases()
 })
 </script>
 
