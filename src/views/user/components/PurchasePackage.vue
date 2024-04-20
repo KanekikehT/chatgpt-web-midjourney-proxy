@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { NButton, NModal, NQrCode, useMessage } from 'naive-ui'
 import { convertPrice, generateOut_trade_no, queryOrderStatus, startCountdown } from '../utils/packageService'
-import { closeOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
+import { closeOrder, createJsapiPaymentOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useUserStore } from '@/store'
 
@@ -68,62 +68,127 @@ watch(showModal, (newVal) => {
 })
 
 const purchasePackage = async (packageDetail) => {
-  if (!isMobile.value) {
-    try {
-      orderNumber.value = generateOut_trade_no() // 生成唯一订单号
-      const orderInfo = {
-        description: packageDetail.name,
-        out_trade_no: orderNumber.value,
-        notify_url: 'https://api.noword.tech/api/payments/callback',
-        amount: {
-          total: convertPrice(packageDetail.price), // 注意单位是分
-          currency: 'CNY',
-        },
-      }
+  orderNumber.value = generateOut_trade_no() // 生成唯一订单号
+  const orderInfo = {
+    description: packageDetail.name,
+    out_trade_no: orderNumber.value,
+    notify_url: 'https://api.noword.tech/api/payments/callback',
+    amount: {
+      total: convertPrice(packageDetail.price), // 注意单位是分
+      currency: 'CNY',
+    },
+    payer: {
+      openid: userStore.userInfo.openid, // 假设用户信息中包含openid
+    },
+  }
 
-      const response = await createPaymentOrder(orderInfo, token)
+  try {
+    let response
+    if (isMobile.value) {
+      // 调用JSAPI支付
+      response = await createJsapiPaymentOrder(orderInfo, token)
+      ms.success('支付请求已发送，请完成支付')
+    }
+    else {
+      // 调用扫码支付
+      response = await createPaymentOrder(orderInfo, token)
       if (response.data && response.data.data.code_url) {
         qrCodeUrl.value = response.data.data.code_url // 获取支付二维码URL
         showModal.value = true // 显示二维码模态框
         pollingActive.value = true
-        let purchaseRecordCreated = false // 新增状态标志
-
-        queryInterval.value = setInterval(async () => {
-          if (!pollingActive.value) {
-            clearInterval(queryInterval.value)
-            return
-          }
-          const { data } = await queryOrderStatus(orderNumber.value, token)
-          if (data.data.trade_state === 'SUCCESS' && !purchaseRecordCreated) {
-            orderPaid.value = true
-            const packagePurchaseData = {
-              name: packageDetail.name,
-              points: packageDetail.points,
-              price: packageDetail.price,
-              validity: packageDetail.validity,
-            }
-            await createPackagePurchase(packagePurchaseData, token)
-            purchaseRecordCreated = true // 标记购买记录已创建
-          }
-          if (orderPaid.value || countdown.value <= 0) {
-            closeModalAndOrder()
-            ms.success('支付成功')
-          }
-        }, 3000)
       }
       else {
         console.error('无法获取支付信息')
       }
     }
-    catch (error) {
-      console.error('购买套餐过程中发生错误：', error)
-    }
+    // 轮询支付状态
+    queryInterval.value = setInterval(async () => {
+      // 现有的支付状态轮询代码...
+      if (!pollingActive.value) {
+        clearInterval(queryInterval.value)
+        return
+      }
+      const { data } = await queryOrderStatus(orderNumber.value, token)
+      if (data.data.trade_state === 'SUCCESS' && !purchaseRecordCreated) {
+        orderPaid.value = true
+        const packagePurchaseData = {
+          name: packageDetail.name,
+          points: packageDetail.points,
+          price: packageDetail.price,
+          validity: packageDetail.validity,
+        }
+        await createPackagePurchase(packagePurchaseData, token)
+        purchaseRecordCreated = true // 标记购买记录已创建
+      }
+      if (orderPaid.value || countdown.value <= 0) {
+        closeModalAndOrder()
+        ms.success('支付成功')
+      }
+    }, 3000)
   }
-  else {
-    // 此功能在移动设备上不可用
-    ms.info('请使用电脑浏览器打开此页面')
+  catch (error) {
+    console.error('购买套餐过程中发生错误：', error)
+    ms.error('购买过程中出现问题，请稍后重试')
   }
 }
+
+// const purchase = async (packageDetail) => {
+//   if (!isMobile.value) {
+//     try {
+//       orderNumber.value = generateOut_trade_no() // 生成唯一订单号
+//       const orderInfo = {
+//         description: packageDetail.name,
+//         out_trade_no: orderNumber.value,
+//         notify_url: 'https://api.noword.tech/api/payments/callback',
+//         amount: {
+//           total: convertPrice(packageDetail.price), // 注意单位是分
+//           currency: 'CNY',
+//         },
+//       }
+
+//       const response = await createPaymentOrder(orderInfo, token)
+//       if (response.data && response.data.data.code_url) {
+//         qrCodeUrl.value = response.data.data.code_url // 获取支付二维码URL
+//         showModal.value = true // 显示二维码模态框
+//         pollingActive.value = true
+//         let purchaseRecordCreated = false // 新增状态标志
+
+//         queryInterval.value = setInterval(async () => {
+//           if (!pollingActive.value) {
+//             clearInterval(queryInterval.value)
+//             return
+//           }
+//           const { data } = await queryOrderStatus(orderNumber.value, token)
+//           if (data.data.trade_state === 'SUCCESS' && !purchaseRecordCreated) {
+//             orderPaid.value = true
+//             const packagePurchaseData = {
+//               name: packageDetail.name,
+//               points: packageDetail.points,
+//               price: packageDetail.price,
+//               validity: packageDetail.validity,
+//             }
+//             await createPackagePurchase(packagePurchaseData, token)
+//             purchaseRecordCreated = true // 标记购买记录已创建
+//           }
+//           if (orderPaid.value || countdown.value <= 0) {
+//             closeModalAndOrder()
+//             ms.success('支付成功')
+//           }
+//         }, 3000)
+//       }
+//       else {
+//         console.error('无法获取支付信息')
+//       }
+//     }
+//     catch (error) {
+//       console.error('购买套餐过程中发生错误：', error)
+//     }
+//   }
+//   else {
+//     // 此功能在移动设备上不可用
+//     ms.info('请使用电脑浏览器打开此页面')
+//   }
+// }
 </script>
 
 <template>
