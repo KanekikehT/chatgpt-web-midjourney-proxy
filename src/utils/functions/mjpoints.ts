@@ -11,7 +11,6 @@ export async function deductPoints(): Promise<string> {
   // console.log('扣除绘画积分中')
   const userStore = useUserStore()
   let remainingPoints = FIXED_DEDUCTION
-  console.log('userStore.userInfo.packages', userStore.userInfo.packages)
 
   // 收集需要更新的套餐信息
   const updates = []
