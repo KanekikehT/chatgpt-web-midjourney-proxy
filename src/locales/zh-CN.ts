@@ -27,6 +27,8 @@ export default {
     verify: '验证',
     unauthorizedTips: '未经授权，请先进行验证。',
     stopResponding: '停止响应',
+    confirmLogout: '确认注销？',
+    cancel: '取消',
   },
   chat: {
     newChatButton: '新建聊天',
@@ -109,7 +111,7 @@ export default {
     galleryInfo: '我的画廊',
     userprofile: '我的',
     userprofileInfo: '个人资料',
-    announcement:'公告'
+    announcement: '公告',
   },
   mjchat: {
     loading: '正在载入图片',

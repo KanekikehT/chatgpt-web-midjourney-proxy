@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { NButton, NModal, NQrCode, useMessage } from 'naive-ui'
 import { convertPrice, generateOut_trade_no, queryOrderStatus, startCountdown } from '../utils/packageService'
-import { closeOrder, createJsapiPaymentOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
+import { closeOrder, createPackagePurchase, createPaymentOrder, getPackages } from '@/api'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useUserStore } from '@/store'
 
@@ -86,8 +86,8 @@ const purchasePackage = async (packageDetail) => {
     let response
     if (isMobile.value) {
       // 调用JSAPI支付
-      response = await createJsapiPaymentOrder(orderInfo, token)
-      ms.success('支付请求已发送，请完成支付')
+      // response = await createJsapiPaymentOrder(orderInfo, token)
+      ms.info('请使用电脑浏览器打开此页面')
     }
     else {
       // 调用扫码支付

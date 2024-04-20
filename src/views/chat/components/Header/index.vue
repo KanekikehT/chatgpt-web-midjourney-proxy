@@ -20,6 +20,8 @@ const userStore = useUserStore()
 
 const ms = useMessage()
 
+const confirmReset = ref(false)
+
 interface Props {
   usingContext: boolean
 }
@@ -35,6 +37,27 @@ const chatStore = useChatStore()
 const collapsed = computed(() => appStore.siderCollapsed)
 const currentChatHistory = computed(() => chatStore.getChatHistoryByCurrentActive)
 
+function handleReset() {
+  confirmReset.value = true // 显示确认对话框
+}
+
+async function confirmLogout() {
+  try {
+    userStore.resetUserInfo()
+    await router.replace({ name: 'login' })
+    // 等待Vue处理DOM更新
+    await nextTick()
+    window.location.reload(true) // 使用true参数强制从服务器加载
+  }
+  catch (error) {
+    ms.error(`${t('common.error')}: ${error.message}`)
+  }
+}
+
+function cancelLogout() {
+  confirmReset.value = false // 取消操作
+}
+
 function handleUpdateCollapsed() {
   appStore.setSiderCollapsed(!collapsed.value)
 }
@@ -43,15 +66,6 @@ function onScrollToTop() {
   const scrollRef = document.querySelector('#scrollRef')
   if (scrollRef)
     nextTick(() => scrollRef.scrollTop = 0)
-}
-
-function handleReset() {
-  userStore.resetUserInfo()
-  ms.success(t('common.success'))
-  router.replace({ name: 'login' }).then(() => {
-    // 页面跳转后强制刷新页面，确保应用状态完全重置
-    window.location.reload()
-  })
 }
 
 function handleExport() {
@@ -70,6 +84,9 @@ watch(() => homeStore.myData.act, n => n == 'saveChat' && (nGptStore.value = cha
 </script>
 
 <template>
+  <NModal v-model:show="confirmReset" title="注销" preset="dialog" :positive-text="$t('common.confirm')" :negative-text="$t('common.cancel')" @positive-click="confirmLogout" @negative-click="cancelLogout">
+    <p>{{ $t('common.confirmLogout') }}</p>
+  </NModal>
   <header
     class="sticky top-0 left-0 right-0 z-30 border-b dark:border-neutral-800 bg-white/80 dark:bg-black/20 backdrop-blur"
   >
