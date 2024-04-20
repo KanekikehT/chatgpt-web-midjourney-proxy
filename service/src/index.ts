@@ -21,10 +21,16 @@ const app = express()
 const router = express.Router()
 
 app.use(express.static('public', {
-  setHeaders: (res, path, stat) => {
-    res.set('Cache-Control', 'no-cache');
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.set('Cache-Control', 'no-cache')
+    }
+    else {
+      // 对哈希版本控制的静态文件使用长期缓存
+      res.set('Cache-Control', 'max-age=31536000, immutable')
+    }
   },
-}));
+}))
 // app.use(express.json())
 app.use(bodyParser.json({ limit: '10mb' })) // 大文件传输
 

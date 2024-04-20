@@ -11,12 +11,12 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
     viteStaticCopy({
       targets: [
         {
-          src: path.resolve(__dirname, './src/static/mitf') + '/[!.]*', // 1️⃣
-          dest: './mitf/', // 2️⃣
+          src: `${path.resolve(__dirname, './src/static/mitf')}/[!.]*`,
+          dest: './mitf/',
         },
       ],
     }),
-    VitePWA({ // env.VITE_GLOB_APP_PWA === 'true' &&
+    VitePWA({
       injectRegister: 'auto',
       manifest: {
         name: 'chatGPT-MJ',
@@ -33,6 +33,8 @@ function setupPlugins(env: ImportMetaEnv): PluginOption[] {
 export default defineConfig((env) => {
   const viteEnv = loadEnv(env.mode, process.cwd()) as unknown as ImportMetaEnv
 
+  const version = new Date().getTime() // 获取当前时间戳作为版本号
+
   return {
     resolve: {
       alias: {
@@ -47,33 +49,39 @@ export default defineConfig((env) => {
       proxy: {
         '/api': {
           target: viteEnv.VITE_APP_API_BASE_URL,
-          changeOrigin: true, // 允许跨域
+          changeOrigin: true,
           rewrite: path => path.replace('/api/', '/'),
         },
         '/mjapi': {
           target: viteEnv.VITE_APP_API_BASE_URL,
-          changeOrigin: true, // 允许跨域
-          //rewrite: path => path.replace('/api/', '/'),
+          changeOrigin: true,
         },
-         '/uploads': {
+        '/uploads': {
           target: viteEnv.VITE_APP_API_BASE_URL,
-          changeOrigin: true, // 允许跨域
-          //rewrite: path => path.replace('/api/', '/'),
-        }, 
+          changeOrigin: true,
+        },
         '/openapi': {
           target: viteEnv.VITE_APP_API_BASE_URL,
-          changeOrigin: true, // 允许跨域
-          //rewrite: path => path.replace('/api/', '/'),
+          changeOrigin: true,
         },
-        
       },
     },
     build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]',
+        },
+      },
       reportCompressedSize: false,
       sourcemap: false,
       commonjsOptions: {
         ignoreTryCatch: false,
       },
+    },
+    define: {
+      __VERSION__: JSON.stringify(version), // 定义全局版本号变量，可以在项目中任何位置使用
     },
   }
 })
