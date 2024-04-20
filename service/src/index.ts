@@ -23,10 +23,11 @@ const router = express.Router()
 app.use(express.static('public', {
   setHeaders: (res, path) => {
     if (path.endsWith('.html')) {
-      res.set('Cache-Control', 'no-cache')
+      // 对 HTML 文件禁用缓存
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate')
     }
     else {
-      // 对哈希版本控制的静态文件使用长期缓存
+      // 对其他文件设置长期缓存
       res.set('Cache-Control', 'max-age=31536000, immutable')
     }
   },
