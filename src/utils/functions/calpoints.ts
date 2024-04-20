@@ -17,7 +17,6 @@ export async function calculateAndUpdatePoints(model: string): Promise<string> {
   const userStore = useUserStore()
   const baseRate = modelPoints[model] || 1
   let remainingPoints = baseRate
-  console.log('userStore.userInfo.packages', userStore.userInfo.packages)
 
   // 收集需要更新的套餐信息
   const updates = []

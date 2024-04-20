@@ -332,7 +332,6 @@ export async function subModel(opt: subModelType) {
         if (obj.choices[0].finish_reason != null) {
           // 只有在请求成功完成后，才更新积分消耗
           const pointsResult = await calculateAndUpdatePoints(model)
-          console.log('积分状态更新', pointsResult)
         }
       },
       onError: opt.onError,

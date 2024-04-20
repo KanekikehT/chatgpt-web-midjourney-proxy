@@ -42,7 +42,6 @@ const handleSubmit = () => {
       try {
         // 调用API并等待结果
         const response = await login(formValue.value.phoneNumber, formValue.value.password)
-        console.log('用户信息', response.data.user)
         await userStore.updateUserInfo({ id: response.data.user.id, token: response.data.jwt, name: response.data.user.username, newuser: response.data.user.newuser })
         await userStore.setLoggedIn(true)
         // //('---', userStore.userInfo)
