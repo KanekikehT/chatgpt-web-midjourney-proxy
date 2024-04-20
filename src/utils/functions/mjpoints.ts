@@ -8,7 +8,7 @@ const FIXED_DEDUCTION = 32
  * @returns 更新后的积分或错误信息
  */
 export async function deductPoints(): Promise<string> {
-  console.log('扣除绘画积分中')
+  // console.log('扣除绘画积分中')
   const userStore = useUserStore()
   let remainingPoints = FIXED_DEDUCTION
   console.log('userStore.userInfo.packages', userStore.userInfo.packages)
@@ -44,7 +44,7 @@ export async function deductPoints(): Promise<string> {
 }
 
 export async function checkPoints(): Promise<boolean> {
-  console.log('检查绘画积分')
+  // console.log('检查绘画积分')
   const userStore = useUserStore()
   let totalAvailablePoints = 0
 

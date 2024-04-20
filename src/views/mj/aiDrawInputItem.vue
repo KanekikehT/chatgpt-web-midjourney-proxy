@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { NButton, NInput, NInputNumber, NPopover, NSelect, NTag, useMessage } from 'naive-ui'
+import { checkPoints, deductPoints } from '../../utils/functions/mjpoints' // 导入积分计算函数
 import config from './draw.json'
 import AiMsg from './aiMsg.vue'
 import { SvgIcon } from '@/components/common'
@@ -66,18 +67,43 @@ const isDisabled = computed(() => {
   return props.buttonDisabled || st.value.isLoad || st.value.text.trim() == ''
 })
 const ms = useMessage()
-function create() {
-  st.value.isLoad = true
-  train(st.value.text.trim()).then((ps) => {
-    const rz = { prompt: st.value.text.trim(), drawText: createPrompt(ps) }
-    if (ps)
-      drawSent(rz)
-    st.value.text = ''
-    st.value.isLoad = false
-  }).catch((err) => {
-    msgRef.value.showError(err)
-    st.value.isLoad = false
-  })
+// function create() {
+//   st.value.isLoad = true
+//   train(st.value.text.trim()).then((ps) => {
+//     const rz = { prompt: st.value.text.trim(), drawText: createPrompt(ps) }
+//     if (ps)
+//       drawSent(rz)
+//     st.value.text = ''
+//     st.value.isLoad = false
+//   }).catch((err) => {
+//     msgRef.value.showError(err)
+//     st.value.isLoad = false
+//   })
+// }
+
+async function create() {
+  if (await checkPoints()) { // 检查积分是否足够
+    const deductionResult = await deductPoints() // 执行积分扣除
+    if (deductionResult === '积分更新成功。') {
+      st.value.isLoad = true
+      train(st.value.text.trim()).then((ps) => {
+        const rz = { prompt: st.value.text.trim(), drawText: createPrompt(ps) }
+        if (ps)
+          drawSent(rz)
+        st.value.text = ''
+        st.value.isLoad = false
+      }).catch((err) => {
+        msgRef.value.showError(err)
+        st.value.isLoad = false
+      })
+    }
+    else {
+      ms.error(deductionResult) // 显示积分不足消息
+    }
+  }
+  else {
+    ms.error('积分不足，请购买更多套餐或降低使用量。')
+  }
 }
 
 const shorten = () => {

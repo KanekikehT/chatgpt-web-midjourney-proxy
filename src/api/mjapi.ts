@@ -1,4 +1,4 @@
-import { checkPoints, deductPoints } from '../utils/functions/mjpoints' // 导入积分计算函数
+// 导入积分计算函数
 // import { useChat } from '@/views/chat/hooks/useChat'
 
 import { localGet, localSaveAny } from './mjsave'
@@ -148,13 +148,6 @@ export const mjFetch = (url: string, data?: any): Promise<any> => {
   header = { ...header, ...getHeaderApiSecret() }
 
   return new Promise<any>(async (resolve, reject) => {
-    // 先检查积分是否足够
-    const hasEnoughPoints = await checkPoints()
-    if (!hasEnoughPoints) {
-      reject({ error: '积分不足以进行此操作', code: 'insufficient_points', url })
-      return
-    }
-
     const opt: RequestInit = { method: 'GET' }
     opt.headers = header
     if (data) {
@@ -165,12 +158,7 @@ export const mjFetch = (url: string, data?: any): Promise<any> => {
     fetch(getUrl(url), opt)
       .then(d2 => d2.json().then(async (d) => {
         if (d2.ok) {
-          // API调用成功后扣除积分
-          const pointsResult = await deductPoints()
-          if (pointsResult === '积分更新成功。')
-            resolve(d)
-          else
-            reject({ error: pointsResult, code: 'points_error', url: getUrl(url), status: d2.status })
+          resolve(d)
         }
         else {
           reject({
