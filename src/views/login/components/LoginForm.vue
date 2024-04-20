@@ -162,7 +162,7 @@ const containerStyle = computed(() => {
         </div>
       </div>
     </div>
-    <div class="text-xs text-gray-500 mt-1">
+    <div class="text-xs text-gray-500 mt-1 text-center">
       登录或注册视为您已同意<span class="text-sky-400">用户协议</span>和<span class="text-sky-400">隐私协议</span>
     </div>
   </div>
