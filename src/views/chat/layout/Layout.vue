@@ -63,9 +63,9 @@ onMounted(() => {
     // 使用立即执行的异步函数处理购买逻辑
     (async () => {
       const newUserPackageDetail = {
-        name: '新用户注册礼包',
-        price: '50', // 价格是50分
-        points: 1000, // 赠送1000积分
+        name: '新用户福利',
+        price: '0', // 价格是50分
+        points: 500, // 赠送1000积分
         validity: '30', // 有效期30天
       }
       try {
