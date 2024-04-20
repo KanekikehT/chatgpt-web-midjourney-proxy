@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { computed, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAlert, NAutoComplete, NAvatar, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NAvatar, NButton, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import drawListVue from '../mj/drawList.vue'
 import aiGPT from '../mj/aiGpt.vue'
@@ -16,7 +16,7 @@ import { useUsingContext } from './hooks/useUsingContext'
 import HeaderComponent from './components/Header/index.vue'
 import { SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { gptConfigStore, gptsUlistStore, homeStore, useChatStore, usePromptStore } from '@/store'
+import { gptConfigStore, gptsUlistStore, homeStore, useChatStore, usePromptStore, useUserStore } from '@/store'
 import type { gptsType } from '@/api'
 import { chatSetting, fetchChatAPIProcess, mlog, myFetch } from '@/api'
 import { t } from '@/locales'
@@ -30,6 +30,7 @@ const dialog = useDialog()
 const ms = useMessage()
 const router = useRouter()
 const chatStore = useChatStore()
+const userStore = useUserStore()
 
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()

@@ -9,7 +9,7 @@ import { gptConfigStore, homeStore, useAppStore, useChatStore, useUserStore } fr
 import { aiFooter, aiSider } from '@/views/mj'
 import aiMobileMenu from '@/views/mj/aiMobileMenu.vue'
 import { t } from '@/locales'
-import { openaiSetting } from '@/api'
+import { createPackagePurchase, openaiSetting, updateUser } from '@/api'
 import { isObject } from '@/utils/is'
 
 const router = useRouter()
@@ -59,6 +59,26 @@ const getContainerClass = computed(() => {
 onMounted(() => {
   if (isLoggedIn)
     userStore.loadPackagePurchases()
+  const userInfo = userStore.userInfo
+  const token = userInfo.token
+  if ((userInfo.newuser === true || userInfo.newuser === null) && token) {
+    // 使用立即执行的异步函数处理购买逻辑
+    (async () => {
+      const newUserPackageDetail = {
+        name: '新用户注册礼包',
+        price: '50', // 价格是50分
+        points: 1000, // 赠送1000积分
+        validity: '30', // 有效期30天
+      }
+      try {
+        await createPackagePurchase(newUserPackageDetail, token)
+        await updateUser(userInfo.id, { newuser: false }, token)
+        await userStore.updateUserInfo({ newuser: false })
+      }
+      catch (error) {
+      }
+    })()
+  }
 })
 </script>
 

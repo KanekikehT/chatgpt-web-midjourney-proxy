@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const API_BASE_URL = 'http://localhost:1337/api'
-const API_BASE_URL = 'https://api.noword.tech/api'
+const API_BASE_URL = 'http://localhost:1337/api'
+// const API_BASE_URL = 'https://api.noword.tech/api'
 
 // 用户登录
 export const login = (phoneNumber: string, password: string) => {
@@ -16,6 +16,15 @@ export const register = (phoneNumber: string, password: string, code: string) =>
 // 重置密码
 export const resetPassword = (phoneNumber: string, password: string, code: string) => {
   return axios.post(`${API_BASE_URL}/auth/reset-password`, { phoneNumber, password, code })
+}
+
+// 更新用户信息
+export const updateUser = (userId: string, userData: object, token: string) => {
+  return axios.put(`${API_BASE_URL}/users/${userId}`, userData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
 }
 
 // 获取验证码

@@ -18,6 +18,8 @@ export interface UserInfo {
   points: number
   token: string
   packages: Package[] // 用户的套餐列表
+  newuser: boolean // 是否为新用户
+  id: number // 用户ID
 }
 
 export interface UserState {
@@ -34,7 +36,8 @@ export function defaultSetting(): UserState {
       points: 0,
       token: '',
       packages: [], // 初始化套餐数组
-
+      newuser: true,
+      id: 0,
     },
     isLoggedIn: false, // 默认未登录状态
   }

@@ -33,7 +33,6 @@ export const useUserStore = defineStore('user-store', {
 
       try {
         const response = await findPackagePurchases(this.userInfo.token)
-        console.log('Package purchases response:', response.data)
         if (response && response.data) {
           const today = moment()
           this.userInfo.packages = response.data.data.map((item) => {
