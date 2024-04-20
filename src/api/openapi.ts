@@ -276,7 +276,7 @@ Latex block: $$e=mc^2$$`
 }
 export async function subModel(opt: subModelType) {
   const model = opt.model ?? 'gpt-3.5-turbo'
-  let max_tokens = 1024 // 默认值，应根据实际模型调整
+  let max_tokens = 1024
   let temperature = 0.7
   let top_p = 1
   let presence_penalty = 0
@@ -293,11 +293,10 @@ export async function subModel(opt: subModelType) {
     max_tokens = gStore.max_tokens ?? max_tokens
   }
 
-  const pointsResult = await calculateAndUpdatePoints(model)
-  console.log('积分状态', pointsResult)
-  if (pointsResult !== '积分更新成功。') {
-    // 如果积分不足，不使用弹窗，而是将错误传递给 onError 回调
-    opt.onError && opt.onError({ message: pointsResult })
+  // 先检查积分是否足够
+  const hasEnoughPoints = await checkSufficientPoints(model)
+  if (!hasEnoughPoints) {
+    opt.onError && opt.onError({ message: '积分不足，请购买更多套餐或降低使用量。' })
     return
   }
 
@@ -327,12 +326,13 @@ export async function subModel(opt: subModelType) {
       body: JSON.stringify(body),
       signal: opt.signal,
       onMessage: async (data: string) => {
-        if (data == '[DONE]') {
-          opt.onMessage({ text: '', isFinish: true })
-        }
-        else {
-          const obj = JSON.parse(data)
-          opt.onMessage({ text: obj.choices[0].delta?.content ?? '', isFinish: obj.choices[0].finish_reason != null })
+        const obj = JSON.parse(data)
+        opt.onMessage({ text: obj.choices[0].delta?.content ?? '', isFinish: obj.choices[0].finish_reason != null })
+
+        if (obj.choices[0].finish_reason != null) {
+          // 只有在请求成功完成后，才更新积分消耗
+          const pointsResult = await calculateAndUpdatePoints(model)
+          console.log('积分状态更新', pointsResult)
         }
       },
       onError: opt.onError,

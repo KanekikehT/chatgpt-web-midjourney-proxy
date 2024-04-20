@@ -1,22 +1,16 @@
 import { useUserStore } from '@/store'
 
-// 定义模型与积分的映射
-const modelPoints = {
-  'gpt-3.5-turbo': 4,
-  'gpt-3.5-turbo-0125': 6,
-  'gpt-4-all': 20,
-  'gpt-4-32k': 32,
-}
+// 定义积分消耗
+const FIXED_DEDUCTION = 32
 
 /**
- * 计算积分并更新套餐状态
- * @param model 模型名称
+ * 每次调用扣除32积分
  * @returns 更新后的积分或错误信息
  */
-export async function calculateAndUpdatePoints(model: string): Promise<string> {
+export async function deductPoints(): Promise<string> {
+  console.log('扣除绘画积分中')
   const userStore = useUserStore()
-  const baseRate = modelPoints[model] || 1
-  let remainingPoints = baseRate
+  let remainingPoints = FIXED_DEDUCTION
   console.log('userStore.userInfo.packages', userStore.userInfo.packages)
 
   // 收集需要更新的套餐信息
@@ -49,9 +43,9 @@ export async function calculateAndUpdatePoints(model: string): Promise<string> {
     return '积分更新成功。'
 }
 
-export async function checkSufficientPoints(model: string): Promise<boolean> {
+export async function checkPoints(): Promise<boolean> {
+  console.log('检查绘画积分')
   const userStore = useUserStore()
-  const neededPoints = modelPoints[model] || 1
   let totalAvailablePoints = 0
 
   for (const pkg of userStore.userInfo.packages) {
@@ -59,5 +53,5 @@ export async function checkSufficientPoints(model: string): Promise<boolean> {
       totalAvailablePoints += (pkg.points - pkg.usedPoints)
   }
 
-  return totalAvailablePoints >= neededPoints
+  return totalAvailablePoints >= FIXED_DEDUCTION
 }
