@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { ChatMessage } from 'gpt-tokenizer/esm/GptEncoding'
-import { calculateAndUpdatePoints } from '../utils/functions/calpoints' // 导入积分计算函数
+import { calculateAndUpdatePoints, checkSufficientPoints } from '../utils/functions/calpoints' // 导入积分计算函数
 import { mlog, myTrim } from './mjapi'
 import { fetchSSE } from './sse/fetchsse'
 import { localGet, localSaveAny } from './mjsave'
