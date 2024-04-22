@@ -2,10 +2,10 @@ import { useUserStore } from '@/store'
 
 // 定义模型与积分的映射
 const modelPoints = {
-  'gpt-3.5-turbo': 4,
-  'gpt-3.5-turbo-0125': 6,
-  'gpt-4-all': 20,
-  'gpt-4-32k': 32,
+  'gpt-3.5-turbo': 0,
+  'gpt-3.5-turbo-0125': 0,
+  'gpt-4-all': 0,
+  'gpt-4-32k': 0,
 }
 
 /**
@@ -15,7 +15,7 @@ const modelPoints = {
  */
 export async function calculateAndUpdatePoints(model: string): Promise<string> {
   const userStore = useUserStore()
-  const baseRate = modelPoints[model] || 1
+  const baseRate = modelPoints[model] || 0
   let remainingPoints = baseRate
 
   // 收集需要更新的套餐信息
