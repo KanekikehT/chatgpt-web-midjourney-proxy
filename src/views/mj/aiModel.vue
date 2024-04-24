@@ -26,7 +26,7 @@ const nGptStore = ref(chatSet.getGptConfig())
 // })
 
 const config = ref({
-  model: [''],
+  model: ['gpt-3.5-turbo'],
   maxToken: 2048,
 })
 
