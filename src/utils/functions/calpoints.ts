@@ -3,9 +3,6 @@ import { useUserStore } from '@/store'
 // 定义模型与积分的映射
 const modelPoints = {
   'gpt-3.5-turbo': 0,
-  'gpt-3.5-turbo-0125': 0,
-  'gpt-4-all': 0,
-  'gpt-4-32k': 0,
 }
 
 /**

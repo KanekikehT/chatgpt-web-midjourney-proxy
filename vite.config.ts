@@ -1,7 +1,7 @@
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
+// import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // 设置插件，包括静态文件复制和 PWA 配置
@@ -16,17 +16,17 @@ function setupPlugins(env) {
         },
       ],
     }),
-    VitePWA({
-      injectRegister: 'auto',
-      manifest: {
-        name: 'chatGPT-MJ',
-        short_name: 'chatGPT-MJ',
-        icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-        ],
-      },
-    }),
+    // VitePWA({
+    //   injectRegister: 'auto',
+    //   manifest: {
+    //     name: '',
+    //     short_name: '',
+    //     icons: [
+    //       { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+    //       { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+    //     ],
+    //   },
+    // }),
   ]
 }
 
