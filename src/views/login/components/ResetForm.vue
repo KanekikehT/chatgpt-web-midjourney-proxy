@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { getVerificationCode, resetPassword } from '@/api' // 引入API方法
-import { handleBlur } from '@/utils/validators.js';
+import { handleBlur } from '@/views/login/utils/validators.js';
 import { useAuthStore } from '@/store/authStore';
 
 const isCountingDown = ref(false)

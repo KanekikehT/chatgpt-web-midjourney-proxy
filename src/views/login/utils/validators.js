@@ -1,5 +1,4 @@
-// utils/validators.js
-
+// views/login/utils/validators.js
 function validatePhoneNumber(phoneNumber) {
   const regex = /^1[3-9]\d{9}$/;
   if (!phoneNumber) {

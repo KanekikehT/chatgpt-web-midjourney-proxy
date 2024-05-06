@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { login } from '@/api'
 import { useUserStore } from '@/store'
-import { handleBlur } from '@/utils/validators.js';
+import { handleBlur } from '@/views/login/utils/validators.js';
 import ResetForm from '@/views/login/components/ResetForm.vue'
 import { useAuthStore } from '@/store/authStore';
 

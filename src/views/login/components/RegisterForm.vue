@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { getVerificationCode, register } from '@/api' // 引入获取验证码的API函数
-import { handleBlur } from '@/utils/validators.js';
+import { handleBlur } from '@/views/login/utils/validators.js';
 import { useAuthStore } from '@/store/authStore';
 
 const isCountingDown = ref(false)
